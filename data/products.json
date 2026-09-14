@@ -1,0 +1,122 @@
+[
+  {
+    "id": "gold-1",
+    "category": "gold",
+    "sku": "BJ-GLD-201",
+    "name": "Nawabi Floral Antique Gold Choker",
+    "specs": "22K BIS Hallmarked Gold (916) • 48.60 gms",
+    "craft": "Hand-carved Agra Repoussé Technique",
+    "image": "https://images.unsplash.com/photo-1601121141461-9d6647bca1ed?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200",
+    "description": "Exquisite 22K yellow gold handcrafted choker adorned with ruby accents and delicate filigree work."
+  },
+  {
+    "id": "gold-2",
+    "category": "gold",
+    "sku": "BJ-GLD-202",
+    "name": "Maharani Triple-Layered Gold Haar",
+    "specs": "22K Yellow Gold (BIS 916) • 72.40 gms",
+    "craft": "Bespoke Surat & Agra Joint Craft",
+    "image": "https://images.unsplash.com/photo-1721807644561-9efcabee5c42?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200",
+    "description": "Multi-strand cascading gold beads with an intricately embossed central medallion, designed for royal bridal occasions."
+  },
+  {
+    "id": "gold-3",
+    "category": "gold",
+    "sku": "BJ-GLD-203",
+    "name": "Royal Paisley Agra Gold Jhumkas",
+    "specs": "22K Pure Gold • 24.80 gms",
+    "craft": "Agra Heritage Die & Hand Filigree",
+    "image": "https://images.unsplash.com/photo-1651160670627-2896ddf7822f?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200",
+    "description": "Grand paisley chandelier earrings featuring fine wire mesh and articulated gold bells with an antique matte finish."
+  },
+  {
+    "id": "gold-4",
+    "category": "gold",
+    "sku": "BJ-GLD-204",
+    "name": "Heritage Emerald Inlay Gold Collar",
+    "specs": "22K Gold with Natural Zambian Emeralds • 54.10 gms",
+    "craft": "Agra Master Artisan Studio",
+    "image": "https://images.unsplash.com/photo-1722410180687-b05b50922362?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200",
+    "description": "Stately collar necklace featuring geometric gold plaques set with deep green emerald drops and matching chandelier drop."
+  },
+  {
+    "id": "dia-1",
+    "category": "diamond",
+    "sku": "BJ-DIA-301",
+    "name": "The Surat Solitaire Tennis Armlet",
+    "specs": "18K White Gold • 4.50 Ct VVS-EF Diamonds",
+    "craft": "IGI Certified • Surat Micro-Pavé Setting",
+    "image": "https://images.unsplash.com/photo-1573408301185-9146fe634ad0?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200",
+    "description": "Continuous oval-cut diamond eternity bracelet engineered with a concealed safety clasp and flawless mirror polish."
+  },
+  {
+    "id": "dia-2",
+    "category": "diamond",
+    "sku": "BJ-DIA-302",
+    "name": "Imperial Halo Solitaire Ring",
+    "specs": "18K Rose Gold & Platinum • 1.80 Ct Centre + 0.60 Ct Halo",
+    "craft": "GIA / IGI Dual Certified • 4-Prong Comfort Fit",
+    "image": "https://images.unsplash.com/photo-1613945407943-59cd755fd69e?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200",
+    "description": "Brilliant-cut diamond centrepiece enclosed by a shimmering constellation halo upon a micro-pavé band."
+  },
+  {
+    "id": "dia-3",
+    "category": "diamond",
+    "sku": "BJ-DIA-303",
+    "name": "Haute Joaillerie Layered Diamond Ensemble",
+    "specs": "18K Solid White Gold • 6.20 Ct Total Weight",
+    "craft": "IGI Certified Natural Diamonds • Custom CAD & Hand Setting",
+    "image": "https://images.unsplash.com/photo-1673131158656-84601f4d00ea?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200",
+    "description": "Contemporary layered diamond necklace with matching eternity ring stacks, crafted for modern black-tie galas."
+  },
+  {
+    "id": "dia-4",
+    "category": "diamond",
+    "sku": "BJ-DIA-304",
+    "name": "Constellation Diamond Choker & Bands",
+    "specs": "18K Fine Gold • VVS Clarity Diamonds",
+    "craft": "IGI Certified • 100% Conflict Free",
+    "image": "https://images.unsplash.com/photo-1633934542430-0905ccb5f050?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200",
+    "description": "Delicate geometric diamond drop chains paired with sculpted ring accents for effortless everyday luxury."
+  },
+  {
+    "id": "polki-1",
+    "category": "polki",
+    "sku": "BJ-PLK-101",
+    "name": "Shahi Darbar Polki & Uncut Diamond Choker",
+    "specs": "24K Gold Foil Kundan Jadau • Natural Uncut Polki",
+    "craft": "Mughal Jadau Heritage Craftsmanship",
+    "image": "https://images.unsplash.com/photo-1756483560049-e7b2208f99a0?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200",
+    "description": "Grand uncut polki choker embedded in pure 24K gold foil jadau, with matching maang tikka and jhumkis."
+  },
+  {
+    "id": "polki-2",
+    "category": "polki",
+    "sku": "BJ-PLK-102",
+    "name": "Rajputana Bridal Polki Grandeur Suite",
+    "specs": "22K Gold Base • South Sea Pearls & Natural Gemstones",
+    "craft": "Agra 9th Generation Master Karigari",
+    "image": "https://images.unsplash.com/photo-1617633150878-7df1d12a9a57?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200",
+    "description": "Complete wedding jewel set: guluband choker, rani haar, nath, hathphool, and meenakari reverse enameling."
+  },
+  {
+    "id": "polki-3",
+    "category": "polki",
+    "sku": "BJ-PLK-103",
+    "name": "Awadh Heirloom Jadau Necklace Set",
+    "specs": "22K Gold • Uncut Polki & Emerald Beads",
+    "craft": "Traditional Agra Takkar & Meenakari",
+    "image": "https://images.unsplash.com/photo-1570212773364-e30cd076539e?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200",
+    "description": "Vintage royal Mughal silhouette with open-setting polki stones and green tourmaline drops on woven zari dori."
+  },
+  {
+    "id": "polki-4",
+    "category": "polki",
+    "sku": "BJ-PLK-104",
+    "name": "Taj Mahal Royal Polki Mathapatti & Choker",
+    "specs": "22K Gold • Certified Syndicate Uncut Diamonds",
+    "craft": "Fine Meena Reverse Artwork — Agra Foundry",
+    "image": "https://images.unsplash.com/photo-1610276347467-2f3a6053d297?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200",
+    "description": "Crown-worthy headpiece and regal collar handcrafted with unblemished syndicate polki in antique kundan foil."
+  }
+]

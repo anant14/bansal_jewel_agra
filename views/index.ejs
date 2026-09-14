@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body data-phone="<%= brand.phoneRaw %>">
+  <div class="grain" aria-hidden="true"></div>
+
+  <%- include('partials/nav') %>
+
+  <main>
+    <%- include('partials/hero') %>
+    <%- include('partials/marquee') %>
+    <%- include('partials/usps') %>
+    <%- include('partials/catalogue') %>
+    <%- include('partials/bespoke') %>
+    <%- include('partials/heritage') %>
+    <%- include('partials/wholesale') %>
+    <%- include('partials/reviews') %>
+    <%- include('partials/showroom') %>
+  </main>
+
+  <%- include('partials/footer') %>
+  <%- include('partials/whatsapp-float') %>
+  <%- include('partials/modals') %>
+
+  <script src="/js/main.js" defer></script>
+</body>
+</html>

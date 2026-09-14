@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <main class="oops container">
+    <div>
+      <h1><%= typeof serverError !== 'undefined' && serverError ? 'Something went wrong' : 'Page not found' %></h1>
+      <p>The page you were looking for isn&rsquo;t here.</p>
+      <p style="margin-top:28px"><a class="btn btn--gold" href="/">Return home</a></p>
+    </div>
+  </main>
+</body>
+</html>

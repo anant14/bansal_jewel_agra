@@ -1,0 +1,50 @@
+<section class="hero" id="top">
+  <div class="hero__bg" id="hero-bg">
+    <% hero.slides.forEach(function (slide, i) { %>
+      <img
+        src="<%= slide.image %>"
+        alt="<%= slide.title %>"
+        class="<%= i === 0 ? 'active' : '' %>"
+        <%= i === 0 ? '' : 'loading="lazy"' %>
+        data-label="<%= slide.label %> — <%= slide.tagline %>"
+      />
+    <% }); %>
+  </div>
+
+  <div class="container">
+    <div class="hero__inner">
+      <p class="hero__eyebrow"><%= hero.eyebrow %></p>
+      <h1 class="hero__title">
+        <% hero.headingLines.forEach(function (line, i) { %>
+          <span class="<%= i === hero.goldLineIndex ? 'gold-text' : '' %>"><%= line %></span>
+        <% }); %>
+      </h1>
+      <p class="hero__sub"><%= hero.subheading %></p>
+
+      <div class="hero__actions">
+        <a class="btn btn--gold" href="<%= hero.primaryCta.href %>"><%= hero.primaryCta.label %></a>
+        <a
+          class="btn btn--ghost"
+          href="<%= waLink(hero.secondaryCta.message) %>"
+          target="_blank"
+          rel="noopener"
+          data-enquiry
+          data-type="general"
+          data-title="<%= hero.secondaryCta.label %>"
+          data-message="<%= hero.secondaryCta.message %>"
+        ><%= hero.secondaryCta.label %></a>
+      </div>
+
+      <div class="hero__stats">
+        <% hero.stats.forEach(function (stat) { %>
+          <div class="hero__stat">
+            <div class="n"><%= stat.value %></div>
+            <div class="l"><%= stat.label %></div>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero__slidepill" id="hero-pill"><%= hero.slides[0].label %> — <%= hero.slides[0].tagline %></div>
+</section>

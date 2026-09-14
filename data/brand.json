@@ -1,0 +1,28 @@
+{
+  "name": "Bansal Jewellers",
+  "shortName": "Bansal Jewellers",
+  "initials": "BJ",
+  "city": "Agra",
+  "est": "EST. 1820",
+  "since": "Since 1820",
+  "generation": "Ninth Generation",
+  "tagline": "Two Centuries of Royal Karigari & Timeless Brilliance",
+  "metaDescription": "Bansal Jewellers, Agra — a 200-year-old, ninth-generation jewellery house. BIS hallmarked gold, IGI certified diamonds and imperial polki, with own manufacturing in Agra & Surat.",
+  "phoneDisplay": "+91 88264 81301",
+  "phoneRaw": "918826481301",
+  "phoneTel": "+918826481301",
+  "email": "care@bansaljewellers.example",
+  "address": "13/50, Kinari Bazaar, Besides Namak Ki Mandi Phatak, Agra – 282003, Uttar Pradesh, India",
+  "addressShort": "Kinari Bazaar, Agra",
+  "hours": "Monday – Sunday: 10:30 AM – 8:30 PM (IST)",
+  "gstin": "09ABCPB9431B1Z5",
+  "bisLicense": "HM/C-8890023025",
+  "googleReviewsUrl": "https://www.google.com/search?q=bansal+jewellers+agra",
+  "googleMapsUrl": "https://maps.google.com/?q=13/50+Kinari+Bazaar+Namak+Ki+Mandi+Agra+282003",
+  "whatsappDefaultMessage": "Hello Bansal Jewellers, I would like to enquire about your jewellery collections and services.",
+  "social": {
+    "instagram": "",
+    "facebook": "",
+    "youtube": ""
+  }
+}

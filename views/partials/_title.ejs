@@ -1,0 +1,10 @@
+<%
+  var _h = heading || '';
+  var _gw = (typeof goldWord !== 'undefined' && goldWord) ? goldWord : null;
+  var _parts = (_gw && _h.indexOf(_gw) !== -1) ? _h.split(_gw) : [_h];
+%>
+<% if (typeof eyebrow !== 'undefined' && eyebrow) { %>
+  <p class="eyebrow"><%= eyebrow %></p>
+<% } %>
+<h2 class="section-title"><%= _parts[0]
+  %><% if (_parts.length > 1) { %><span class="gold-text"><%= _gw %></span><%= _parts[1] %><% } %></h2>

@@ -1,0 +1,41 @@
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div>
+        <a href="#top" class="brand">
+          <span class="brand__crest"><span><%= brand.initials %></span></span>
+          <span class="brand__name"><%= brand.name %></span>
+        </a>
+        <p class="eyebrow" style="margin-top:16px"><%= brand.city %> &bull; <%= brand.est %> &bull; <%= brand.generation %></p>
+        <p class="footer__blurb"><%= footer.blurb %></p>
+      </div>
+
+      <div>
+        <h4>Explore</h4>
+        <ul>
+          <% footer.quickLinks.forEach(function (link) { %>
+            <li><a href="<%= link.href %>"><%= link.label %></a></li>
+          <% }); %>
+        </ul>
+      </div>
+
+      <div>
+        <h4><%= footer.trustHeading %></h4>
+        <ul>
+          <% footer.trust.forEach(function (item) { %>
+            <li><%= item %></li>
+          <% }); %>
+          <li>BIS Licence: <%= brand.bisLicense %></li>
+          <li>GSTIN: <%= brand.gstin %></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="gold-hairline" style="margin-top:56px"></div>
+
+    <div class="footer__legal">
+      <p>&copy; <%= year %> <%= footer.legalLine %></p>
+      <p><%= brand.addressShort %> &bull; <%= brand.phoneDisplay %></p>
+    </div>
+  </div>
+</footer>

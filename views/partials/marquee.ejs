@@ -1,0 +1,9 @@
+<div class="marquee" aria-hidden="true">
+  <div class="marquee__track">
+    <% for (var pass = 0; pass < 2; pass++) { %>
+      <% marquee.forEach(function (item) { %>
+        <span class="marquee__item"><%= item %></span>
+      <% }); %>
+    <% } %>
+  </div>
+</div>

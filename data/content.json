@@ -1,0 +1,218 @@
+{
+  "nav": [
+    { "label": "Collections", "href": "#collections" },
+    { "label": "Legacy", "href": "#legacy" },
+    { "label": "Bespoke", "href": "#bespoke" },
+    { "label": "Wholesale", "href": "#wholesale" },
+    { "label": "Reviews", "href": "#reviews" },
+    { "label": "Visit Us", "href": "#visit" }
+  ],
+
+  "hero": {
+    "eyebrow": "Ninth Generation Jewellery House • Agra • Since 1820",
+    "headingLines": ["Two Centuries of", "Royal Karigari", "& Uncut Brilliance"],
+    "goldLineIndex": 1,
+    "subheading": "Mastering Gold, Diamond and Polki craftsmanship for over 200 years — with our own workshop in Agra and diamond atelier in Surat, serving connoisseurs and leading retailers across North India.",
+    "primaryCta": { "label": "Explore Heritage Catalogue", "href": "#collections" },
+    "secondaryCta": { "label": "Enquire on WhatsApp", "message": "Hello Bansal Jewellers, I'm interested in your collections. Please share details." },
+    "stats": [
+      { "value": "200+", "label": "Years of Legacy" },
+      { "value": "9", "label": "Generations" },
+      { "value": "2", "label": "Own Ateliers" }
+    ],
+    "slides": [
+      {
+        "category": "polki",
+        "label": "Polki",
+        "title": "Royal Polki & Kundan Choker Suite",
+        "tagline": "Mughal craftsmanship refined for modern royalty",
+        "badge": "Heirloom Polki • Uncut Diamonds",
+        "image": "https://images.unsplash.com/photo-1756483560049-e7b2208f99a0?crop=entropy&cs=srgb&fm=jpg&q=85&w=1600"
+      },
+      {
+        "category": "gold",
+        "label": "Gold",
+        "title": "22KT Gold Temple Jewellery",
+        "tagline": "Hallmarked 916 pure gold, handcrafted by 9th-gen karigars",
+        "badge": "BIS 916 Hallmarked • Solid Gold",
+        "image": "https://images.unsplash.com/photo-1601121141461-9d6647bca1ed?crop=entropy&cs=srgb&fm=jpg&q=85&w=1600"
+      },
+      {
+        "category": "diamond",
+        "label": "Diamond",
+        "title": "Surat Atelier Solitaire Diamond Ensemble",
+        "tagline": "Precision-cut VVS/EF certified diamonds in 18K gold",
+        "badge": "IGI / SGL Certified • Surat Atelier",
+        "image": "https://images.unsplash.com/photo-1573408301185-9146fe634ad0?crop=entropy&cs=srgb&fm=jpg&q=85&w=1600"
+      }
+    ]
+  },
+
+  "marquee": [
+    "200 Years of Heritage",
+    "9 Generations of Trust",
+    "100% BIS 916 Hallmarked",
+    "IGI Certified Diamonds",
+    "Agra Foundry",
+    "Surat Atelier",
+    "200km Retail Network",
+    "Bespoke Bridal Jadau"
+  ],
+
+  "usps": {
+    "eyebrow": "The Bansal Assurance",
+    "heading": "Four pillars of unbroken trust",
+    "goldWord": "unbroken trust",
+    "items": [
+      {
+        "number": "01",
+        "title": "Certified & Hallmarked",
+        "subtitle": "Guaranteed Purity, Laser-Inscribed Diamonds",
+        "description": "Every gram of gold is BIS 916 / 750 certified with a 6-digit HUID. Every solitaire is verified by IGI / GIA laboratories with laser-inscribed certificates.",
+        "badge": "BIS HUID Verified"
+      },
+      {
+        "number": "02",
+        "title": "Own Manufacturing",
+        "subtitle": "Agra Foundry + Surat Diamond Atelier",
+        "description": "Our Agra foundry crafts intricate polki & temple jewellery; our Surat atelier cuts and sets high-clarity diamonds. Direct-from-source, zero middlemen.",
+        "badge": "In-House Foundries"
+      },
+      {
+        "number": "03",
+        "title": "Bespoke Customization",
+        "subtitle": "3D CAD to Final Karigari",
+        "description": "Turn your heirloom vision into reality — from sketch to 3D render to a hand-crafted masterpiece with a ninth-generation artisan touch.",
+        "badge": "Custom Atelier"
+      },
+      {
+        "number": "04",
+        "title": "Timely Delivery",
+        "subtitle": "Bridal Timelines & 200km Retail Logistics",
+        "description": "Strict milestone adherence for wedding seasons, plus insured wholesale dispatch to jewellery retailers across a 200km radius of Agra.",
+        "badge": "Express Delivery"
+      }
+    ]
+  },
+
+  "catalogue": {
+    "eyebrow": "The Heritage Catalogue",
+    "heading": "Masterpieces in Gold, Diamond & Polki",
+    "goldWord": "Gold, Diamond & Polki",
+    "categories": [
+      { "id": "all", "label": "All Masterpieces" },
+      { "id": "gold", "label": "22K Gold" },
+      { "id": "diamond", "label": "Surat Diamonds" },
+      { "id": "polki", "label": "Imperial Polki" }
+    ],
+    "footnote": "This is a glimpse of our collection — hundreds of designs await at our Kinari Bazaar showroom.",
+    "footnoteCta": { "label": "Request the full catalogue", "message": "Hello Bansal Jewellers, please share your full catalogue on WhatsApp." }
+  },
+
+  "bespoke": {
+    "eyebrow": "The Bespoke Atelier",
+    "heading": "Your vision, our two centuries of karigari",
+    "goldWord": "our two centuries of karigari",
+    "intro": "From a rough sketch to a 3D CAD render to a hand-finished heirloom — our master artisans in Agra and Surat craft one-of-one pieces for weddings, milestones and legacies. Begin your bespoke journey in three simple steps.",
+    "steps": [
+      { "number": "01", "title": "Share Your Vision", "detail": "Sketch, reference or just an idea — we listen first." },
+      { "number": "02", "title": "3D CAD Preview", "detail": "See your piece rendered in detail before a single gram is cast." },
+      { "number": "03", "title": "Master Karigari", "detail": "Handcrafted at our Agra foundry or Surat atelier, on schedule." }
+    ],
+    "cta": { "label": "Start a Bespoke Enquiry", "message": "Hello Bansal Jewellers, I want to discuss a custom jewellery design." }
+  },
+
+  "heritage": {
+    "eyebrow": "Since 1820 • Agra",
+    "heading": "One unbroken promise.",
+    "intro": "For over two centuries, the Bansal family has shaped gold, cut diamonds and set uncut polki in the shadow of the Taj Mahal. Today, the ninth generation carries the same torch — from our foundry in Agra to our atelier in Surat.",
+    "timelineLabel": "Chapter by chapter ◈ 1820 — 2026",
+    "milestones": [
+      {
+        "era": "1820s — The Genesis",
+        "title": "Founded in the Historic Heart of Agra",
+        "detail": "Established near the historic jewel bazaars of Agra, crafting bespoke gold ornaments for noble families and patrons of fine Mughal filigree."
+      },
+      {
+        "era": "1900s — Imperial Karigari",
+        "title": "Mastering the Art of Polki Jadau",
+        "detail": "Pioneered proprietary 24K gold foil setting and meenakari enameling, creating heirlooms passed down through generations of Indian weddings."
+      },
+      {
+        "era": "1980s — The Surat Expansion",
+        "title": "The Diamond Cutting Atelier",
+        "detail": "Established state-of-the-art diamond processing in Surat — direct sourcing, laser grading and zero-mark-up fine diamond jewellery."
+      },
+      {
+        "era": "Today — Ninth Generation Vision",
+        "title": "200km Wholesale Network & Digital Luxury",
+        "detail": "Led by the ninth generation, modernizing with CAD technology while supplying hallmarked jewellery to retailers across a 200km radius of Agra — and now, to the world."
+      }
+    ]
+  },
+
+  "wholesale": {
+    "eyebrow": "For Jewellery Retailers",
+    "heading": "The trusted wholesale house within 200km of Agra",
+    "goldWord": "within 200km of Agra",
+    "intro": "We supply certified gold, diamond and polki jewellery to leading retail showrooms across the region — straight from our own manufacturing facilities.",
+    "cities": ["Agra", "Mathura", "Aligarh", "Firozabad", "Hathras", "Etah", "Bharatpur", "Gwalior"],
+    "benefits": [
+      "100% BIS hallmarked stock with HUID",
+      "Direct foundry pricing, zero middlemen",
+      "Express 24–48h insured dispatch",
+      "Custom batch manufacturing at Agra & Surat"
+    ],
+    "cta": { "label": "Request Wholesale Catalogue", "message": "Hello Bansal Jewellers, I am a retailer interested in wholesale supply. Please share your wholesale catalogue and terms." },
+    "image": "https://images.unsplash.com/photo-1721807644561-9efcabee5c42?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200"
+  },
+
+  "reviews": {
+    "eyebrow": "Google Business Reviews",
+    "ratingValue": "4.9",
+    "ratingCount": "480+ Verified Reviews",
+    "intro": "Two centuries of relationships, reflected in the words of our bridal families and retail partners on Google.",
+    "cta": { "label": "Read all reviews on Google" }
+  },
+
+  "showroom": {
+    "eyebrow": "Visit The Showroom",
+    "heading": "Meet us in Kinari Bazaar, Agra",
+    "goldWord": "Kinari Bazaar, Agra",
+    "cardLabel": "Flagship Showroom",
+    "photos": [
+      { "src": "https://images.unsplash.com/photo-1617038220319-276d3cfab638?crop=entropy&cs=srgb&fm=jpg&q=85&w=1400", "alt": "Bansal Jewellers gold jewellery display", "wide": true },
+      { "src": "https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?crop=entropy&cs=srgb&fm=jpg&q=85&w=900", "alt": "Fine gemstone and diamond jewellery at the Bansal Jewellers showroom", "wide": false },
+      { "src": "https://images.unsplash.com/photo-1610276347467-2f3a6053d297?crop=entropy&cs=srgb&fm=jpg&q=85&w=900", "alt": "Polki and kundan pieces, Kinari Bazaar showroom", "wide": false }
+    ],
+    "bookCta": { "label": "Book a Showroom Appointment", "message": "Hello Bansal Jewellers, I would like to book a showroom appointment." }
+  },
+
+  "footer": {
+    "blurb": "Two Centuries of Royal Karigari & Timeless Brilliance. Own manufacturing in Agra & Surat.",
+    "quickLinks": [
+      { "label": "Collections", "href": "#collections" },
+      { "label": "Our Legacy", "href": "#legacy" },
+      { "label": "Bespoke Atelier", "href": "#bespoke" },
+      { "label": "Wholesale", "href": "#wholesale" },
+      { "label": "Reviews", "href": "#reviews" }
+    ],
+    "trustHeading": "Trust & Compliance",
+    "trust": [
+      "100% BIS 916 Hallmarked Gold with HUID",
+      "IGI / GIA / SGL Certified Diamonds",
+      "Manufacturing Units: Heritage Gold & Polki Foundry, Agra (UP) • Diamond Atelier, Surat (Gujarat)"
+    ],
+    "legalLine": "Bansal Jewellers, Agra ◈ Since 1820"
+  },
+
+  "whatsappQuick": {
+    "heading": "How can we help?",
+    "pills": [
+      { "label": "Enquire about Gold Rate", "message": "Hello Bansal Jewellers, what is today's gold rate (22K / 24K)?" },
+      { "label": "Bridal Appointment", "message": "Hello Bansal Jewellers, I would like to book a bridal jewellery consultation." },
+      { "label": "Wholesale / B2B Inquiry", "message": "Hello Bansal Jewellers, I am a retailer interested in wholesale supply." },
+      { "label": "Custom Design Request", "message": "Hello Bansal Jewellers, I want to discuss a custom jewellery design." }
+    ]
+  }
+}

@@ -1,0 +1,41 @@
+<section class="section" id="reviews">
+  <div class="container">
+    <div class="reviews__grid">
+      <div class="reveal">
+        <p class="eyebrow"><%= reviews.eyebrow %></p>
+        <div class="reviews__score">
+          <span class="big"><%= reviews.ratingValue %></span>
+          <div>
+            <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+            <p class="reviews__count"><%= reviews.ratingCount %></p>
+          </div>
+        </div>
+        <p class="lead" style="margin-top:24px"><%= reviews.intro %></p>
+        <a
+          class="btn btn--ghost"
+          style="margin-top:26px"
+          href="<%= brand.googleReviewsUrl %>"
+          target="_blank"
+          rel="noopener"
+        ><%= reviews.cta.label %></a>
+      </div>
+
+      <div class="review-cards">
+        <% reviews.items.forEach(function (r) { %>
+          <article class="review reveal">
+            <div class="review__top">
+              <span class="review__author"><%= r.author %></span>
+              <span class="review__loc"><%= r.location %></span>
+            </div>
+            <div class="stars" aria-label="<%= r.rating %> out of 5">
+              <% for (var i = 0; i < r.rating; i++) { %>&#9733;<% } %>
+            </div>
+            <p class="review__purchase"><%= r.purchase %></p>
+            <p class="review__body">&ldquo;<%= r.comment %>&rdquo;</p>
+            <p class="review__date"><%= r.date %></p>
+          </article>
+        <% }); %>
+      </div>
+    </div>
+  </div>
+</section>

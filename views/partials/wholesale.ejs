@@ -1,0 +1,39 @@
+<section class="section section--deep" id="wholesale">
+  <div class="container">
+    <div class="wholesale__grid">
+      <div class="reveal">
+        <%- include('_title', { eyebrow: wholesale.eyebrow, heading: wholesale.heading, goldWord: wholesale.goldWord }) %>
+        <p class="lead" style="margin-top:22px"><%= wholesale.intro %></p>
+
+        <div class="chips">
+          <% wholesale.cities.forEach(function (city) { %>
+            <span class="chip"><%= city %></span>
+          <% }); %>
+        </div>
+
+        <ul class="benefits">
+          <% wholesale.benefits.forEach(function (b) { %>
+            <li><%= b %></li>
+          <% }); %>
+        </ul>
+
+        <div class="wholesale__cta">
+          <a
+            class="btn btn--gold"
+            href="<%= waLink(wholesale.cta.message) %>"
+            target="_blank"
+            rel="noopener"
+            data-enquiry
+            data-type="wholesale"
+            data-title="<%= wholesale.cta.label %>"
+            data-message="<%= wholesale.cta.message %>"
+          ><%= wholesale.cta.label %></a>
+        </div>
+      </div>
+
+      <div class="wholesale__media reveal">
+        <img src="<%= wholesale.image %>" alt="Bansal Jewellers wholesale manufacturing" loading="lazy" />
+      </div>
+    </div>
+  </div>
+</section>

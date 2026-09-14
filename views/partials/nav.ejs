@@ -1,0 +1,46 @@
+<header class="nav" id="site-nav">
+  <div class="nav__inner">
+    <a href="#top" class="brand" aria-label="<%= brand.name %> — home">
+      <span class="brand__crest"><span><%= brand.initials %></span></span>
+      <span>
+        <span class="brand__name"><%= brand.name %></span>
+        <span class="brand__since"><%= brand.est %></span>
+      </span>
+    </a>
+
+    <nav class="nav__links" aria-label="Primary">
+      <% nav.forEach(function (link) { %>
+        <a href="<%= link.href %>"><%= link.label %></a>
+      <% }); %>
+    </nav>
+
+    <a
+      class="btn btn--ghost nav__cta"
+      href="<%= waLink(brand.whatsappDefaultMessage) %>"
+      target="_blank"
+      rel="noopener"
+      data-enquiry
+      data-type="general"
+      data-title="Send us a message"
+    >WhatsApp Us</a>
+
+    <button class="nav__toggle" id="nav-toggle" aria-label="Toggle menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+
+  <div class="nav__mobile" id="nav-mobile">
+    <% nav.forEach(function (link) { %>
+      <a href="<%= link.href %>"><%= link.label %></a>
+    <% }); %>
+    <a
+      class="btn btn--gold btn--block"
+      href="<%= waLink(brand.whatsappDefaultMessage) %>"
+      target="_blank"
+      rel="noopener"
+      data-enquiry
+      data-type="general"
+      data-title="Send us a message"
+    >WhatsApp Us</a>
+  </div>
+</header>

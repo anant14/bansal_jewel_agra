@@ -1,0 +1,68 @@
+<section class="section" id="collections">
+  <div class="container">
+    <div class="catalogue__bar">
+      <div class="section-head reveal" style="margin-bottom:0">
+        <%- include('_title', { eyebrow: catalogue.eyebrow, heading: catalogue.heading, goldWord: catalogue.goldWord }) %>
+      </div>
+      <div class="filters reveal" role="tablist" aria-label="Filter collection">
+        <% catalogue.categories.forEach(function (cat, i) { %>
+          <button
+            class="filter <%= i === 0 ? 'active' : '' %>"
+            data-filter="<%= cat.id %>"
+            role="tab"
+            aria-selected="<%= i === 0 ? 'true' : 'false' %>"
+          ><%= cat.label %></button>
+        <% }); %>
+      </div>
+    </div>
+
+    <div class="product-grid" id="product-grid">
+      <% catalogue.products.forEach(function (p) { %>
+        <article class="card reveal" data-category="<%= p.category %>">
+          <div class="card__media">
+            <img src="<%= p.image %>" alt="<%= p.name %>" loading="lazy" />
+            <span class="card__cat"><%= p.category %></span>
+          </div>
+          <div class="card__body">
+            <span class="card__sku"><%= p.sku %></span>
+            <h3 class="card__name"><%= p.name %></h3>
+            <p class="card__specs"><%= p.specs %></p>
+            <p class="card__craft"><%= p.craft %></p>
+            <div class="card__actions">
+              <button class="card__btn" data-quickview="<%= p.sku %>">Quick View</button>
+              <a
+                class="card__btn card__btn--wa"
+                href="<%= waLink('Hello Bansal Jewellers, I\'m interested in ' + p.name + ' (' + p.sku + '). Please share details.') %>"
+                target="_blank"
+                rel="noopener"
+                data-enquiry
+                data-type="product"
+                data-title="Enquire — <%= p.name %>"
+                data-product-sku="<%= p.sku %>"
+                data-product-name="<%= p.name %>"
+              >Enquire</a>
+            </div>
+          </div>
+        </article>
+      <% }); %>
+    </div>
+
+    <p class="catalogue__foot reveal">
+      <%= catalogue.footnote %>
+      <a
+        class="link-underline"
+        href="<%= waLink(catalogue.footnoteCta.message) %>"
+        target="_blank"
+        rel="noopener"
+        data-enquiry
+        data-type="general"
+        data-title="<%= catalogue.footnoteCta.label %>"
+        data-message="<%= catalogue.footnoteCta.message %>"
+      ><%= catalogue.footnoteCta.label %></a>
+    </p>
+  </div>
+
+  <script type="application/json" id="products-data">
+    <%- JSON.stringify(catalogue.products).replace(/</g, '\\u003c') %>
+  </script>
+</section>

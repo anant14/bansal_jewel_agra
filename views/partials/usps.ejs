@@ -1,0 +1,19 @@
+<section class="section section--alt" id="usps">
+  <div class="container">
+    <div class="section-head reveal">
+      <%- include('_title', { eyebrow: usps.eyebrow, heading: usps.heading, goldWord: usps.goldWord }) %>
+    </div>
+
+    <div class="usp-grid">
+      <% usps.items.forEach(function (u) { %>
+        <article class="usp reveal">
+          <span class="usp__n"><%= u.number %></span>
+          <h3 class="usp__title"><%= u.title %></h3>
+          <p class="usp__subtitle"><%= u.subtitle %></p>
+          <p class="usp__desc"><%= u.description %></p>
+          <span class="usp__badge"><%= u.badge %></span>
+        </article>
+      <% }); %>
+    </div>
+  </div>
+</section>

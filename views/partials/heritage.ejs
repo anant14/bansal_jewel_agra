@@ -1,0 +1,23 @@
+<section class="section" id="legacy">
+  <div class="container">
+    <div class="heritage__grid">
+      <aside class="heritage__aside reveal">
+        <%- include('_title', { eyebrow: heritage.eyebrow, heading: heritage.heading, goldWord: heritage.goldWord }) %>
+        <p class="lead" style="margin-top:22px"><%= heritage.intro %></p>
+      </aside>
+
+      <div>
+        <p class="timeline__label reveal"><%= heritage.timelineLabel %></p>
+        <div class="timeline">
+          <% heritage.milestones.forEach(function (m) { %>
+            <article class="milestone reveal">
+              <p class="milestone__era"><%= m.era %></p>
+              <h3 class="milestone__title"><%= m.title %></h3>
+              <p class="milestone__detail"><%= m.detail %></p>
+            </article>
+          <% }); %>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,31 @@
+<section class="section section--alt" id="bespoke">
+  <div class="container">
+    <div class="section-head reveal">
+      <%- include('_title', { eyebrow: bespoke.eyebrow, heading: bespoke.heading, goldWord: bespoke.goldWord }) %>
+      <p class="bespoke__intro"><%= bespoke.intro %></p>
+    </div>
+
+    <div class="steps">
+      <% bespoke.steps.forEach(function (s) { %>
+        <article class="step reveal">
+          <span class="step__n"><%= s.number %></span>
+          <h3 class="step__title"><%= s.title %></h3>
+          <p class="step__detail"><%= s.detail %></p>
+        </article>
+      <% }); %>
+    </div>
+
+    <div class="bespoke__cta reveal">
+      <a
+        class="btn btn--gold"
+        href="<%= waLink(bespoke.cta.message) %>"
+        target="_blank"
+        rel="noopener"
+        data-enquiry
+        data-type="bespoke"
+        data-title="<%= bespoke.cta.label %>"
+        data-message="<%= bespoke.cta.message %>"
+      ><%= bespoke.cta.label %></a>
+    </div>
+  </div>
+</section>
