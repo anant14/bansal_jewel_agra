@@ -20,6 +20,11 @@
 
 * { box-sizing: border-box; }
 
+/* the browser's native [hidden] behaviour must win over any component's
+   own `display` rule below, or elements toggled via `.hidden = true` in
+   JS (chat header, composer) leak through before a chat is opened. */
+[hidden] { display: none !important; }
+
 html, body {
   height: 100%;
   margin: 0;

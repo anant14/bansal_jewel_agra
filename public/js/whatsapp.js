@@ -11,7 +11,7 @@
   var elChatName = document.getElementById('wa-chat-name');
   var elChatStatus = document.getElementById('wa-chat-status');
   var elChatAvatar = document.getElementById('wa-chat-avatar');
-  var elComposerForm = document.getElementById('wa-composer-form');
+  var elComposerForm = document.getElementById('wa-composer');
   var elComposerInput = document.getElementById('wa-composer-input');
   var elSearch = document.getElementById('wa-search-input');
   var elBack = document.getElementById('wa-back-btn');
