@@ -36,6 +36,11 @@
     <div class="footer__legal">
       <p>&copy; <%= year %> <%= footer.legalLine %></p>
       <p><%= brand.addressShort %> &bull; <%= brand.phoneDisplay %></p>
+      <p class="footer__legalLinks">
+        <% footer.legalLinks.forEach(function (link, i) { %>
+          <a href="<%= link.href %>"><%= link.label %></a><%= i < footer.legalLinks.length - 1 ? ' &bull; ' : '' %>
+        <% }); %>
+      </p>
     </div>
   </div>
 </footer>

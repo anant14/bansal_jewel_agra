@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <main class="legal container">
+    <div class="legal__header">
+      <a href="/" class="brand">
+        <span class="brand__crest"><span><%= brand.initials %></span></span>
+        <span class="brand__name"><%= brand.name %></span>
+      </a>
+      <h1>Data Deletion Instructions</h1>
+      <p class="legal__updated">Last updated: <%= updated %></p>
+    </div>
+
+    <div class="legal__body">
+      <p>
+        If you have contacted <strong><%= brand.name %></strong> through our website enquiry
+        form or on WhatsApp, this page explains what personal data we may hold about you and
+        how to have it deleted.
+      </p>
+
+      <h2>What We May Have Stored</h2>
+      <ul>
+        <li>Your name, phone number, email address and message, if you submitted an enquiry on
+          our website.</li>
+        <li>Your WhatsApp phone number, profile name, and the messages exchanged with us, if
+          you have messaged us on WhatsApp.</li>
+      </ul>
+
+      <h2>How to Request Deletion</h2>
+      <p>Send us a WhatsApp message at
+        <strong><a href="https://wa.me/<%= brand.phoneRaw %>?text=<%= encodeURIComponent('I would like to request deletion of my personal data held by ' + brand.name + '.') %>" target="_blank" rel="noopener"><%= brand.phoneDisplay %></a></strong>
+        with the words <strong>"DELETE MY DATA"</strong>, or call us on the same number. You
+        can also visit our showroom in person at <%= brand.address %> and make the request.</p>
+      <p>Please message us from the same phone number your enquiry or WhatsApp conversation was
+        made with, so we can locate and verify the correct records.</p>
+
+      <h2>What Happens Next</h2>
+      <ul>
+        <li>We will locate the enquiry and/or WhatsApp conversation records tied to your phone
+          number.</li>
+        <li>We will delete that personal data from our systems within 30 days of a verified
+          request.</li>
+        <li>We will confirm to you on WhatsApp once the deletion is complete.</li>
+        <li>Some records may need to be retained longer where required by law — for example,
+          invoices for completed purchases, which we must keep for GST and tax purposes.</li>
+      </ul>
+
+      <h2>Your WhatsApp App Data</h2>
+      <p>This process only covers data stored on <strong><%= brand.name %></strong>'s own
+        systems. Messages stored within your personal WhatsApp app, or data held by WhatsApp
+        / Meta itself, are controlled by you and by Meta directly — see
+        <a href="https://www.whatsapp.com/legal/business-data-processing" target="_blank" rel="noopener">WhatsApp's Business Data Processing Terms</a>
+        for how Meta handles that data.</p>
+
+      <p>For anything else about how we handle personal data, see our
+        <a href="/privacy-policy">Privacy Policy</a>.</p>
+
+      <p class="legal__back"><a href="/">&larr; Back to home</a></p>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <main class="legal container">
+    <div class="legal__header">
+      <a href="/" class="brand">
+        <span class="brand__crest"><span><%= brand.initials %></span></span>
+        <span class="brand__name"><%= brand.name %></span>
+      </a>
+      <h1>Terms of Service</h1>
+      <p class="legal__updated">Last updated: <%= updated %></p>
+    </div>
+
+    <div class="legal__body">
+      <p>
+        These Terms of Service govern your use of <strong><%= config.baseUrl %></strong> and
+        your WhatsApp communication with <strong><%= brand.name %></strong>
+        (<%= brand.since %>), <%= brand.address %>. By using this website or messaging us on
+        WhatsApp, you agree to these terms.
+      </p>
+
+      <h2>1. About Us</h2>
+      <p><%= brand.name %> is a <%= brand.generation.toLowerCase() %> jewellery house based in
+        <%= brand.city %>, India, dealing in BIS-hallmarked gold, certified diamond and polki
+        jewellery, with manufacturing units in Agra and Surat.</p>
+
+      <h2>2. Use of This Website</h2>
+      <p>This website is provided to help you browse our catalogue and get in touch with us. You
+        agree to use it only for legitimate personal or business enquiries, and not to misuse
+        the enquiry form (for example, by submitting false information or automated/spam
+        submissions).</p>
+
+      <h2>3. Product Information &amp; Pricing</h2>
+      <p>Product images, descriptions, weights and prices shown on this website are indicative
+        and provided for reference only. Actual weight, making charges and final price depend
+        on prevailing gold/diamond rates and are confirmed at the time of purchase, either at
+        our showroom or via a formal invoice. We reserve the right to correct pricing or
+        availability errors at any time.</p>
+
+      <h2>4. Enquiries Are Not Orders</h2>
+      <p>Submitting an enquiry through this website or WhatsApp does not create a binding sale.
+        A purchase is only confirmed once we issue a formal invoice or confirm the order with
+        you directly (in person, by phone, or on WhatsApp).</p>
+
+      <h2>5. Wholesale &amp; Bespoke Enquiries</h2>
+      <p>Wholesale supply and bespoke (custom-made) jewellery requests are handled on a
+        case-by-case basis. Separate commercial terms, timelines and payment conditions for
+        these will be agreed with you directly before any order is placed.</p>
+
+      <h2>6. Communicating With Us on WhatsApp</h2>
+      <p>By submitting our website form or sending us a WhatsApp message, you consent to
+        receive a reply from us over WhatsApp, including an automated acknowledgement message.
+        You can ask us to stop messaging you at any time.</p>
+
+      <h2>7. Intellectual Property</h2>
+      <p>All text, images, logos and designs on this website are the property of
+        <%= brand.name %> unless otherwise noted, and may not be copied, reproduced or reused
+        without our written permission.</p>
+
+      <h2>8. Third-Party Links</h2>
+      <p>Our website may link to third-party services such as Google Maps or Google Reviews.
+        We are not responsible for the content or privacy practices of those third-party
+        sites.</p>
+
+      <h2>9. Limitation of Liability</h2>
+      <p>This website is provided "as is". While we take care to keep information accurate and
+        the site available, we are not liable for indirect or consequential loss arising from
+        your use of the website or delays in WhatsApp communication.</p>
+
+      <h2>10. Governing Law</h2>
+      <p>These terms are governed by the laws of India, and any dispute will be subject to the
+        exclusive jurisdiction of the courts at Agra, Uttar Pradesh.</p>
+
+      <h2>11. Changes to These Terms</h2>
+      <p>We may update these Terms of Service from time to time. Continued use of the website
+        after changes are posted constitutes acceptance of the revised terms.</p>
+
+      <h2>12. Contact Us</h2>
+      <p>Questions about these terms can be sent to us on WhatsApp or by phone at
+        <strong><%= brand.phoneDisplay %></strong>, or in person at <%= brand.address %>.</p>
+
+      <p class="legal__back"><a href="/">&larr; Back to home</a></p>
+    </div>
+  </main>
+</body>
+</html>

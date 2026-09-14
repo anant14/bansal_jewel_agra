@@ -203,7 +203,12 @@
       "IGI / GIA / SGL Certified Diamonds",
       "Manufacturing Units: Heritage Gold & Polki Foundry, Agra (UP) • Diamond Atelier, Surat (Gujarat)"
     ],
-    "legalLine": "Bansal Jewellers, Agra ◈ Since 1820"
+    "legalLine": "Bansal Jewellers, Agra ◈ Since 1820",
+    "legalLinks": [
+      { "label": "Privacy Policy", "href": "/privacy-policy" },
+      { "label": "Terms of Service", "href": "/terms-of-service" },
+      { "label": "Data Deletion", "href": "/data-deletion" }
+    ]
   },
 
   "whatsappQuick": {
