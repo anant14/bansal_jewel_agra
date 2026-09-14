@@ -151,7 +151,7 @@ body {
 }
 
 /* ---------------- chat panel ---------------- */
-.wa-chat { display: flex; flex-direction: column; min-height: 0; background: var(--wa-bg-3); }
+.wa-chat { position: relative; display: flex; flex-direction: column; min-height: 0; background: var(--wa-bg-3); }
 
 .wa-chat__header {
   height: 59px;
@@ -198,6 +198,17 @@ body {
   word-wrap: break-word;
 }
 .wa-bubble-row.is-me .wa-bubble { background: var(--wa-green-3); }
+.wa-bubble--image { padding: 4px; }
+.wa-bubble--image img { display: block; max-width: 240px; max-height: 240px; border-radius: 6px; object-fit: cover; }
+.wa-bubble--image .wa-bubble__time { background: rgba(0,0,0,0.45); padding: 1px 6px; border-radius: 6px; position: absolute; right: 8px; bottom: 8px; float: none; margin: 0; }
+.wa-bubble--file { display: flex; align-items: center; gap: 10px; min-width: 200px; }
+.wa-bubble__file-icon {
+  width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+  display: grid; place-items: center;
+  background: var(--wa-green-1); color: #062B22;
+}
+.wa-bubble__file-name { font-size: 13.5px; word-break: break-all; }
+.wa-bubble__file-size { font-size: 11.5px; color: var(--wa-text-2); }
 .wa-bubble__time {
   display: inline-block;
   font-size: 11px;
@@ -225,6 +236,47 @@ body {
   padding: 10px 16px;
 }
 .wa-composer__icons { display: flex; gap: 16px; color: var(--wa-text-2); flex-shrink: 0; }
+
+.wa-icon-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+.wa-icon-btn:hover { color: var(--wa-text-1); }
+.wa-icon-btn.is-active { color: var(--wa-green-1); }
+
+.wa-emoji-picker {
+  position: absolute;
+  left: 16px;
+  bottom: 74px;
+  width: 280px;
+  max-height: 220px;
+  overflow-y: auto;
+  background: var(--wa-bg-4);
+  border: 1px solid var(--wa-border);
+  border-radius: 10px;
+  padding: 10px;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  z-index: 5;
+}
+.wa-emoji-picker__item {
+  background: none;
+  border: none;
+  font-size: 20px;
+  line-height: 1;
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.wa-emoji-picker__item:hover { background: var(--wa-hover); }
 .wa-composer input {
   flex: 1;
   background: var(--wa-bg-4);
