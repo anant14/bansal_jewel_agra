@@ -198,9 +198,12 @@ router.post('/api/contacts/:id/update', async (req, res, next) => {
 });
 
 router.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
-  logger.error('admin/contacts: request failed', err.message);
-  if (req.path.startsWith('/api/')) return res.status(500).json({ error: 'server_error' });
-  res.status(500).send('Something went wrong.');
+  logger.error('admin/contacts: request failed', err.message, err.stack);
+  // TEMPORARY diagnostic — Render logs aren't reachable from here right
+  // now, so surface the real error to the (already admin-authenticated)
+  // caller for one deploy cycle, then revert this.
+  if (req.path.startsWith('/api/')) return res.status(500).json({ error: 'server_error', debug: err.message, stack: err.stack });
+  res.status(500).send('Something went wrong.<pre>' + require('util').inspect(err) + '</pre>');
 });
 
 module.exports = router;
