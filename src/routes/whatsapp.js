@@ -5,9 +5,23 @@ const config = require('../config');
 const whatsapp = require('../services/whatsapp');
 const enquiryStore = require('../services/enquiryStore');
 const content = require('../services/content');
+const demoConversations = require('../services/whatsappDemoData');
 const logger = require('../utils/logger');
 
 const router = express.Router();
+
+/**
+ * Front-end preview of a WhatsApp inbox, seeded with dummy conversations.
+ * Not wired to the real webhook data (yet) — purely a UI demo.
+ */
+router.get('/', (req, res) => {
+  const brand = content.brand;
+  res.render('whatsapp', {
+    brand,
+    page: { title: `WhatsApp Inbox Preview — ${brand.name}` },
+    conversations: demoConversations,
+  });
+});
 
 /**
  * Meta WhatsApp Cloud API webhook.
