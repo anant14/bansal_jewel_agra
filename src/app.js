@@ -12,6 +12,8 @@ const logger = require('./utils/logger');
 const pagesRouter = require('./routes/pages');
 const apiRouter = require('./routes/api');
 const whatsappRouter = require('./routes/whatsapp');
+const adminRouter = require('./routes/admin');
+const adminSession = require('./middleware/session');
 
 const app = express();
 
@@ -74,6 +76,9 @@ app.use(
 app.use('/', pagesRouter);
 app.use('/api', apiRouter);
 app.use('/whatsapp', whatsappRouter);
+// Session middleware is scoped to /admin only — the public site stays
+// cookie-free for anonymous visitors.
+app.use('/admin', adminSession, adminRouter);
 
 /* ─────────────────────── error handling ───────────────────── */
 app.use((req, res) => {

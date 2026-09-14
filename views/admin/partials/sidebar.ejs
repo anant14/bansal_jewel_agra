@@ -1,0 +1,22 @@
+<aside class="admin-sidebar">
+  <div class="admin-sidebar__brand">
+    <span class="brand__crest"><span><%= brand.initials %></span></span>
+    <div>
+      <div class="admin-sidebar__brand-name"><%= brand.name %></div>
+      <div class="admin-sidebar__brand-tag">Admin</div>
+    </div>
+  </div>
+  <ul class="admin-nav">
+    <% nav.forEach(function (item) { %>
+      <li class="<%= item.key === activeKey ? 'is-active' : '' %>">
+        <a href="<%= item.href %>"><%= item.label %></a>
+      </li>
+    <% }); %>
+  </ul>
+  <div class="admin-sidebar__footer">
+    <div class="admin-sidebar__user">Signed in as <%= adminName %></div>
+    <form action="/admin/logout" method="post">
+      <button type="submit">Log out</button>
+    </form>
+  </div>
+</aside>

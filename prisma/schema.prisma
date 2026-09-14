@@ -1,0 +1,229 @@
+// Bansal Jewellers — WhatsApp CRM schema.
+// Phase 0 (foundation) + Phase 1 (CRM/contacts/tags/consent) models.
+// Templates, Media, Campaigns, Automations and Gold/Silver Rates are
+// added in their own phases so relations never dangle mid-build.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────── admin / auth ───────────────────────────
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  name         String
+  role         String   @default("owner") // owner | agent — extend when multi-agent lands
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  assignedConversations Conversation[] @relation("ConversationAssignee")
+  assignedContacts      Contact[]      @relation("ContactAssignee")
+  notes                 ContactNote[]
+
+  @@map("admin_users")
+}
+
+// ───────────────────── whatsapp accounts (multi-number ready) ─────────────────────
+
+model WhatsappAccount {
+  id                 String   @id @default(cuid())
+  label              String
+  phoneNumberId      String   @unique @map("phone_number_id")
+  wabaId             String?  @map("waba_id")
+  displayPhoneNumber String?  @map("display_phone_number")
+  isDefault          Boolean  @default(true) @map("is_default")
+  isActive           Boolean  @default(true) @map("is_active")
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  conversations Conversation[]
+  messages      Message[]
+  consents      Consent[]
+
+  @@map("whatsapp_accounts")
+}
+
+// ─────────────────────────────────── CRM ───────────────────────────────────
+
+model Contact {
+  id             String    @id @default(cuid())
+  whatsappNumber String    @unique @map("whatsapp_number") // E.164 digits, no leading +
+  name           String?
+  email          String?
+  birthday       DateTime? @db.Date
+  anniversary    DateTime? @db.Date
+  city           String?
+  source         String? // e.g. website, walk_in, referral, website_gold_rate
+  customerType   String?   @map("customer_type") // e.g. retail, wholesale, vip
+
+  optInStatus String    @default("unknown") @map("opt_in_status") // opted_in | opted_out | unknown
+  optInSource String?   @map("opt_in_source")
+  optInAt     DateTime? @map("opt_in_at")
+  optOutAt    DateTime? @map("opt_out_at")
+
+  firstInteractionAt DateTime? @map("first_interaction_at")
+  lastInteractionAt  DateTime? @map("last_interaction_at")
+
+  assignedAgentId String?    @map("assigned_agent_id")
+  assignedAgent   AdminUser? @relation("ContactAssignee", fields: [assignedAgentId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  tags          ContactTag[]
+  notes         ContactNote[]
+  consents      Consent[]
+  conversations Conversation[]
+
+  @@index([optInStatus])
+  @@index([source])
+  @@map("contacts")
+}
+
+model Tag {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  color     String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  contacts ContactTag[]
+
+  @@map("tags")
+}
+
+model ContactTag {
+  id        String   @id @default(cuid())
+  contactId String   @map("contact_id")
+  tagId     String   @map("tag_id")
+  addedById String?  @map("added_by_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  contact Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  tag     Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([contactId, tagId])
+  @@map("contact_tags")
+}
+
+model ContactNote {
+  id        String   @id @default(cuid())
+  contactId String   @map("contact_id")
+  authorId  String?  @map("author_id")
+  body      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  contact Contact    @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  author  AdminUser? @relation(fields: [authorId], references: [id])
+
+  @@index([contactId])
+  @@map("contact_notes")
+}
+
+model Consent {
+  id                String   @id @default(cuid())
+  contactId         String   @map("contact_id")
+  whatsappAccountId String?  @map("whatsapp_account_id")
+  status            String // opted_in | opted_out
+  source            String? // e.g. website_gold_rate, whatsapp_stop_keyword, manual
+  eventAt           DateTime @default(now()) @map("event_at")
+  rawPayload        Json?    @map("raw_payload")
+
+  contact         Contact          @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  whatsappAccount WhatsappAccount? @relation(fields: [whatsappAccountId], references: [id])
+
+  @@index([contactId])
+  @@map("consents")
+}
+
+// ───────────────────────── conversations & messages ─────────────────────────
+
+model Conversation {
+  id                String    @id @default(cuid())
+  contactId         String    @map("contact_id")
+  whatsappAccountId String    @map("whatsapp_account_id")
+  status            String    @default("open") // open | pending | resolved
+  assignedAgentId   String?   @map("assigned_agent_id")
+  unreadCount       Int       @default(0) @map("unread_count")
+  lastMessageAt     DateTime? @map("last_message_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  contact         Contact         @relation(fields: [contactId], references: [id])
+  whatsappAccount WhatsappAccount @relation(fields: [whatsappAccountId], references: [id])
+  assignedAgent   AdminUser?      @relation("ConversationAssignee", fields: [assignedAgentId], references: [id])
+  messages        Message[]
+
+  @@index([status])
+  @@index([assignedAgentId])
+  @@map("conversations")
+}
+
+model Message {
+  id                String    @id @default(cuid())
+  conversationId    String    @map("conversation_id")
+  whatsappAccountId String    @map("whatsapp_account_id")
+  whatsappMessageId String?   @unique @map("whatsapp_message_id") // Meta's wamid — idempotency key
+  direction         String // inbound | outbound
+  type              String // text | image | video | audio | document | template | interactive
+  textBody          String?   @map("text_body")
+  mediaId           String?   @map("media_id")
+  templateName      String?   @map("template_name")
+  status            String    @default("sent") // sent | delivered | read | failed
+  isAiGenerated     Boolean   @default(false) @map("is_ai_generated")
+  sentAt            DateTime? @map("sent_at")
+  rawPayload        Json?     @map("raw_payload")
+  createdAt         DateTime  @default(now()) @map("created_at")
+
+  conversation    Conversation    @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  whatsappAccount WhatsappAccount @relation(fields: [whatsappAccountId], references: [id])
+  events          MessageEvent[]
+
+  @@index([conversationId])
+  @@map("messages")
+}
+
+model MessageEvent {
+  id         String   @id @default(cuid())
+  messageId  String   @map("message_id")
+  eventType  String   @map("event_type") // sent | delivered | read | failed
+  eventAt    DateTime @default(now()) @map("event_at")
+  rawPayload Json?    @map("raw_payload")
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([messageId])
+  @@map("message_events")
+}
+
+model WebhookEvent {
+  id          String    @id @default(cuid())
+  eventId     String    @unique @map("event_id") // dedupe key (wamid or a payload hash)
+  payload     Json
+  processedAt DateTime? @map("processed_at")
+  error       String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@map("webhook_events")
+}
+
+// ─────────────────────────────────── audit ───────────────────────────────────
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?  @map("actor_id")
+  action    String
+  entity    String?
+  entityId  String?  @map("entity_id")
+  meta      Json?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([entity, entityId])
+  @@map("audit_logs")
+}
