@@ -8,6 +8,8 @@ const { isValidPhone } = require('../../utils/phone');
 const logger = require('../../utils/logger');
 const NAV = require('./nav');
 
+const router = express.Router();
+
 const NAV_ACTIVE = 'contacts';
 
 /* ───────────────────────────── pages ───────────────────────────────── */
