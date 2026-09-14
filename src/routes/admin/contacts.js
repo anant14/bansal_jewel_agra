@@ -199,8 +199,8 @@ router.post('/api/contacts/:id/update', async (req, res, next) => {
 
 router.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
   logger.error('admin/contacts: request failed', err.message);
-  if (req.path.startsWith('/api/')) return res.status(500).json({ error: 'server_error' });
-  res.status(500).send('Something went wrong.');
+  if (req.path.startsWith('/api/')) return res.status(500).json({ error: 'server_error', debug: err.message });
+  res.status(500).send('Something went wrong.<pre>' + require('util').inspect(err) + '</pre>');
 });
 
 module.exports = router;
