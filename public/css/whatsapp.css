@@ -25,36 +25,26 @@
    JS (chat header, composer) leak through before a chat is opened. */
 [hidden] { display: none !important; }
 
-html, body {
-  height: 100%;
-  margin: 0;
-  background: var(--wa-bg-1);
-  color: var(--wa-text-1);
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  overflow: hidden; /* the whole page never scrolls — only the panels below do */
-}
-
-body {
+/* This page lives inside the admin shell (public/css/admin.css), which
+   already owns body/html — .admin-main--whatsapp is what pins this to
+   exactly one viewport with no page-level scroll. */
+.admin-main--whatsapp {
+  padding: 0;
   display: flex;
   flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  color: var(--wa-text-1);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .wa-app {
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(280px, 400px) 1fr;
+  grid-template-columns: minmax(280px, 360px) 1fr;
 }
-
-.wa-demo-banner {
-  flex-shrink: 0;
-  background: var(--wa-green-3);
-  color: var(--wa-text-1);
-  font-size: 12.5px;
-  text-align: center;
-  padding: 6px 10px;
-}
-.wa-demo-banner a { color: var(--wa-text-5); }
+.wa-app.is-profile-open { grid-template-columns: minmax(280px, 360px) 1fr minmax(280px, 320px); }
 
 /* ---------------- sidebar ---------------- */
 .wa-sidebar {
@@ -166,8 +156,118 @@ body {
 .wa-chat__who { display: flex; align-items: center; gap: 12px; }
 .wa-chat__name { font-weight: 600; font-size: 15px; }
 .wa-chat__status { font-size: 12.5px; color: var(--wa-text-2); }
-.wa-chat__icons { display: flex; gap: 20px; color: var(--wa-text-2); }
+.wa-chat__icons { display: flex; align-items: center; gap: 16px; color: var(--wa-text-2); }
 .wa-chat__icons svg { display: block; }
+
+.wa-status-select {
+  background: var(--wa-bg-4);
+  color: var(--wa-text-1);
+  border: 1px solid var(--wa-border);
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+/* ---------------- customer profile panel ---------------- */
+.wa-profile {
+  background: var(--wa-bg-1);
+  border-left: 1px solid var(--wa-border);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+}
+.wa-profile__header { padding: 28px 20px 20px; text-align: center; border-bottom: 1px solid var(--wa-border); }
+.wa-profile__header .wa-avatar { margin: 0 auto 12px; }
+.wa-profile__name { font-weight: 600; font-size: 16px; margin-bottom: 2px; }
+.wa-profile__number { font-size: 13px; color: var(--wa-text-2); margin-bottom: 12px; }
+.wa-profile__link { font-size: 12.5px; color: var(--wa-green-1); }
+
+.wa-profile__section { padding: 16px 20px; border-bottom: 1px solid var(--wa-border); }
+.wa-profile__section--grow { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.wa-profile__section h4 {
+  margin: 0 0 10px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--wa-text-2);
+  font-weight: 600;
+}
+
+.wa-tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.wa-tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--wa-bg-4);
+  color: var(--wa-text-1);
+  font-size: 12px;
+  padding: 4px 8px 4px 10px;
+  border-radius: 999px;
+}
+.wa-tag-chip button {
+  background: none;
+  border: none;
+  color: var(--wa-text-2);
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+  padding: 0;
+}
+.wa-tag-chip button:hover { color: #E5786B; }
+
+.wa-inline-form { display: flex; gap: 6px; }
+.wa-inline-form--stack { flex-direction: column; }
+.wa-inline-form input, .wa-inline-form textarea {
+  flex: 1;
+  background: var(--wa-bg-4);
+  border: 1px solid var(--wa-border);
+  border-radius: 6px;
+  padding: 7px 9px;
+  color: var(--wa-text-1);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  resize: vertical;
+}
+.wa-inline-form button {
+  background: var(--wa-green-1);
+  color: #062B22;
+  border: none;
+  border-radius: 6px;
+  padding: 0 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.wa-inline-form--stack button { align-self: flex-end; }
+
+.wa-consent-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--wa-bg-4);
+}
+.wa-consent-badge.is-in { color: var(--wa-green-1); }
+.wa-consent-badge.is-out { color: #E5786B; }
+
+.wa-profile__meta { margin: 0; font-size: 13px; }
+.wa-profile__meta dt { color: var(--wa-text-2); margin-top: 8px; }
+.wa-profile__meta dt:first-child { margin-top: 0; }
+.wa-profile__meta dd { margin: 2px 0 0; }
+
+.wa-notes-list { flex: 1; min-height: 0; overflow-y: auto; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
+.wa-note {
+  background: var(--wa-bg-4);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+}
+.wa-note__meta { font-size: 11px; color: var(--wa-text-2); margin-top: 4px; }
 
 .wa-messages {
   flex: 1;

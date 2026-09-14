@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <div class="admin-shell">
+    <%- include('partials/sidebar') %>
+    <main class="admin-main">
+      <div class="admin-header admin-header--row">
+        <div>
+          <p class="admin-breadcrumb"><a href="/admin/contacts">Contacts</a> / <%= contact.name || contact.whatsappNumber %></p>
+          <h1><%= contact.name || 'Unnamed contact' %></h1>
+        </div>
+        <a href="/admin/whatsapp" class="btn btn--ghost">Open in Inbox</a>
+      </div>
+
+      <div class="admin-grid-2">
+        <div>
+          <div class="admin-card admin-section">
+            <div class="admin-section__head">
+              <h3>Customer Information</h3>
+            </div>
+            <form method="post" action="/admin/contacts/<%= contact.id %>/update" class="admin-form">
+              <div class="admin-form__row">
+                <label>Name</label>
+                <input type="text" name="name" value="<%= contact.name || '' %>" />
+              </div>
+              <div class="admin-form__row">
+                <label>Email</label>
+                <input type="email" name="email" value="<%= contact.email || '' %>" />
+              </div>
+              <div class="admin-form__row">
+                <label>City</label>
+                <input type="text" name="city" value="<%= contact.city || '' %>" />
+              </div>
+              <div class="admin-form__row">
+                <label>Birthday</label>
+                <input type="date" name="birthday" value="<%= contact.birthday ? contact.birthday.toISOString().slice(0,10) : '' %>" />
+              </div>
+              <div class="admin-form__row">
+                <label>Anniversary</label>
+                <input type="date" name="anniversary" value="<%= contact.anniversary ? contact.anniversary.toISOString().slice(0,10) : '' %>" />
+              </div>
+              <div class="admin-form__row">
+                <label>Customer Type</label>
+                <select name="customerType">
+                  <option value="" <%= !contact.customerType ? 'selected' : '' %>>—</option>
+                  <option value="retail" <%= contact.customerType === 'retail' ? 'selected' : '' %>>Retail</option>
+                  <option value="wholesale" <%= contact.customerType === 'wholesale' ? 'selected' : '' %>>Wholesale</option>
+                  <option value="vip" <%= contact.customerType === 'vip' ? 'selected' : '' %>>VIP</option>
+                </select>
+              </div>
+              <button type="submit" class="btn btn--gold">Save Changes</button>
+            </form>
+          </div>
+
+          <div class="admin-card admin-section">
+            <h3>WhatsApp Information</h3>
+            <dl class="admin-deflist">
+              <dt>Number</dt><dd>+<%= contact.whatsappNumber %></dd>
+              <dt>Source</dt><dd><%= contact.source || '—' %></dd>
+              <dt>First Interaction</dt><dd><%= contact.firstInteractionAt ? new Date(contact.firstInteractionAt).toLocaleString('en-IN') : '—' %></dd>
+              <dt>Last Interaction</dt><dd><%= contact.lastInteractionAt ? new Date(contact.lastInteractionAt).toLocaleString('en-IN') : '—' %></dd>
+            </dl>
+          </div>
+
+          <div class="admin-card admin-section">
+            <h3>Tags</h3>
+            <div class="admin-tags">
+              <% contact.tags.forEach(function (ct) { %>
+                <span class="admin-badge">
+                  <%= ct.tag.name %>
+                  <form method="post" action="/admin/contacts/<%= contact.id %>/tags/<%= ct.tagId %>/remove" class="admin-badge__remove-form">
+                    <button type="submit" aria-label="Remove tag">&times;</button>
+                  </form>
+                </span>
+              <% }); %>
+              <% if (!contact.tags.length) { %><span class="admin-muted">No tags yet.</span><% } %>
+            </div>
+            <form method="post" action="/admin/contacts/<%= contact.id %>/tags" class="admin-form admin-form--inline">
+              <input type="text" name="tagName" placeholder="Add tag…" list="tag-options" required />
+              <datalist id="tag-options">
+                <% tags.forEach(function (t) { %><option value="<%= t.name %>"><% }); %>
+              </datalist>
+              <button type="submit" class="btn btn--ghost">Add Tag</button>
+            </form>
+          </div>
+
+          <div class="admin-card admin-section">
+            <h3>Consent</h3>
+            <p>
+              <span class="admin-badge <%= contact.marketingOptIn ? 'admin-badge--ok' : 'admin-badge--muted' %>">
+                <%= contact.marketingOptIn ? 'Opted in to marketing' : 'Not opted in' %>
+              </span>
+            </p>
+            <div class="admin-form admin-form--inline">
+              <form method="post" action="/admin/contacts/<%= contact.id %>/consent">
+                <input type="hidden" name="status" value="opted_in" />
+                <button type="submit" class="btn btn--ghost">Mark Opted In</button>
+              </form>
+              <form method="post" action="/admin/contacts/<%= contact.id %>/consent">
+                <input type="hidden" name="status" value="opted_out" />
+                <button type="submit" class="btn btn--ghost">Mark Opted Out</button>
+              </form>
+            </div>
+            <% if (contact.consents.length) { %>
+              <ul class="admin-list">
+                <% contact.consents.forEach(function (c) { %>
+                  <li>
+                    <strong><%= c.status %></strong> via <%= c.source || 'unknown' %> —
+                    <%= new Date(c.eventAt).toLocaleString('en-IN') %>
+                  </li>
+                <% }); %>
+              </ul>
+            <% } %>
+          </div>
+
+          <div class="admin-card admin-section">
+            <h3>Internal Notes</h3>
+            <p class="admin-muted">Internal only — never sent to the customer.</p>
+            <% contact.notes.forEach(function (n) { %>
+              <div class="admin-note">
+                <p><%= n.body %></p>
+                <span class="admin-muted"><%= new Date(n.createdAt).toLocaleString('en-IN') %></span>
+              </div>
+            <% }); %>
+            <form method="post" action="/admin/contacts/<%= contact.id %>/notes" class="admin-form">
+              <textarea name="body" rows="3" placeholder="Add an internal note…" required></textarea>
+              <button type="submit" class="btn btn--gold">Add Note</button>
+            </form>
+          </div>
+        </div>
+
+        <div>
+          <div class="admin-card admin-section">
+            <h3>Activity Timeline</h3>
+            <% if (!timeline.length) { %>
+              <p class="admin-muted">No activity yet.</p>
+            <% } else { %>
+              <ul class="admin-timeline">
+                <% timeline.forEach(function (event) { %>
+                  <li>
+                    <div class="admin-timeline__dot"></div>
+                    <div>
+                      <div class="admin-timeline__action">
+                        <%
+                          const labels = {
+                            contact_created: 'Contact created',
+                            tag_added: 'Tag added: ' + (event.meta && event.meta.tagName),
+                            tag_removed: 'Tag removed: ' + (event.meta && event.meta.tagName),
+                            note_added: 'Internal note added',
+                            consent_changed: 'Consent changed to ' + (event.meta && event.meta.status),
+                            message_inbound: 'Customer sent: ' + (event.message ? (event.message.textBody || ('[' + event.message.type + ']')) : (event.meta && event.meta.preview)),
+                            message_outbound: 'You sent: ' + (event.message ? (event.message.textBody || ('[' + event.message.type + ']')) : (event.meta && event.meta.preview)),
+                          };
+                        %>
+                        <%= labels[event.action] || event.action %>
+                      </div>
+                      <div class="admin-muted"><%= new Date(event.createdAt).toLocaleString('en-IN') %></div>
+                    </div>
+                  </li>
+                <% }); %>
+              </ul>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

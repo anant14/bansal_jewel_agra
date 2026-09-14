@@ -4,27 +4,15 @@ const express = require('express');
 const requireAdmin = require('../../middleware/requireAdmin');
 const content = require('../../services/content');
 const authRouter = require('./auth');
+const contactsRouter = require('./contacts');
+const whatsappRouter = require('./whatsapp');
+const NAV = require('./nav');
 
 const router = express.Router();
 
 router.use(authRouter); // /admin/login, /admin/logout — public
 
 router.use(requireAdmin); // everything below requires a session
-
-const NAV = [
-  { key: 'whatsapp', label: 'WhatsApp', href: '/admin/whatsapp' },
-  { key: 'contacts', label: 'Contacts', href: '/admin/contacts' },
-  { key: 'templates', label: 'Templates', href: '/admin/templates' },
-  { key: 'media', label: 'Media Library', href: '/admin/media' },
-  { key: 'campaigns', label: 'Campaigns', href: '/admin/campaigns' },
-  { key: 'automations', label: 'Automations', href: '/admin/automations' },
-  { key: 'botflow', label: 'Bot Flow', href: '/admin/bot-flow' },
-  { key: 'rates', label: 'Gold & Silver Rates', href: '/admin/rates' },
-  { key: 'ai', label: 'AI Assistant', href: '/admin/ai-assistant' },
-  { key: 'reports', label: 'Reports', href: '/admin/reports' },
-  { key: 'logs', label: 'Logs', href: '/admin/logs' },
-  { key: 'settings', label: 'Settings', href: '/admin/settings' },
-];
 
 function renderStub(activeKey, title, blurb) {
   return (req, res) => {
@@ -42,18 +30,9 @@ function renderStub(activeKey, title, blurb) {
 
 router.get('/', (req, res) => res.redirect('/admin/whatsapp'));
 
-router.get(
-  '/whatsapp',
-  renderStub(
-    'whatsapp',
-    'WhatsApp Inbox',
-    'The real, database-backed inbox (conversations, statuses, assignment, labels) lands in the next phase. This page is Phase 0 — foundation, auth and navigation only.'
-  )
-);
-router.get(
-  '/contacts',
-  renderStub('contacts', 'Contacts', 'CRM contact list, tags, notes and consent status — Phase 1.')
-);
+router.use(whatsappRouter); // /admin/whatsapp + /admin/api/whatsapp/*
+router.use(contactsRouter); // /admin/contacts + /admin/api/contacts/*
+
 router.get(
   '/templates',
   renderStub('templates', 'Templates', 'Meta message template manager and jewellery presets — Phase 3.')

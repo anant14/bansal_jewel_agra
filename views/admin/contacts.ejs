@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <div class="admin-shell">
+    <%- include('partials/sidebar') %>
+    <main class="admin-main">
+      <div class="admin-header admin-header--row">
+        <div>
+          <h1>Contacts</h1>
+          <p class="admin-header__sub"><%= result.total %> total</p>
+        </div>
+        <button type="button" class="btn btn--gold" id="open-add-contact">Add Contact</button>
+      </div>
+
+      <form class="admin-filters" method="get" action="/admin/contacts">
+        <input type="text" name="search" placeholder="Search name, number or email" value="<%= filters.search %>" />
+        <select name="tag">
+          <option value="">All tags</option>
+          <% tags.forEach(function (t) { %>
+            <option value="<%= t.name %>" <%= filters.tag === t.name ? 'selected' : '' %>><%= t.name %></option>
+          <% }); %>
+        </select>
+        <select name="optIn">
+          <option value="">Any consent</option>
+          <option value="opted_in" <%= filters.optIn === 'opted_in' ? 'selected' : '' %>>Opted in</option>
+          <option value="opted_out" <%= filters.optIn === 'opted_out' ? 'selected' : '' %>>Opted out</option>
+        </select>
+        <select name="source">
+          <option value="">Any source</option>
+          <% ['website_gold_rate', 'whatsapp_lead', 'manual', 'walk_in', 'referral'].forEach(function (s) { %>
+            <option value="<%= s %>" <%= filters.source === s ? 'selected' : '' %>><%= s %></option>
+          <% }); %>
+        </select>
+        <select name="customerType">
+          <option value="">Any customer type</option>
+          <% ['retail', 'wholesale', 'vip'].forEach(function (c) { %>
+            <option value="<%= c %>" <%= filters.customerType === c ? 'selected' : '' %>><%= c %></option>
+          <% }); %>
+        </select>
+        <button type="submit" class="btn btn--ghost">Filter</button>
+      </form>
+
+      <% if (!result.contacts.length) { %>
+        <div class="admin-card">
+          <div class="admin-empty">
+            <h2>No contacts yet</h2>
+            <p>Contacts are created automatically when someone messages your WhatsApp number, or you can add one manually.</p>
+          </div>
+        </div>
+      <% } else { %>
+        <div class="admin-card admin-card--flush">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>WhatsApp Number</th>
+                <th>Tags</th>
+                <th>Source</th>
+                <th>Consent</th>
+                <th>Last Interaction</th>
+                <th>Created</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% result.contacts.forEach(function (c) { %>
+                <tr>
+                  <td><%= c.name || '—' %></td>
+                  <td>+<%= c.whatsappNumber %></td>
+                  <td>
+                    <% c.tags.forEach(function (ct) { %>
+                      <span class="admin-badge"><%= ct.tag.name %></span>
+                    <% }); %>
+                  </td>
+                  <td><%= c.source || '—' %></td>
+                  <td>
+                    <span class="admin-badge <%= c.marketingOptIn ? 'admin-badge--ok' : 'admin-badge--muted' %>">
+                      <%= c.marketingOptIn ? 'Opted in' : 'Not opted in' %>
+                    </span>
+                  </td>
+                  <td><%= c.lastInteractionAt ? new Date(c.lastInteractionAt).toLocaleDateString('en-IN') : '—' %></td>
+                  <td><%= new Date(c.createdAt).toLocaleDateString('en-IN') %></td>
+                  <td><a href="/admin/contacts/<%= c.id %>" class="admin-table__link">View</a></td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+
+        <% if (result.totalPages > 1) { %>
+          <div class="admin-pagination">
+            <% for (let p = 1; p <= result.totalPages; p++) { %>
+              <a
+                class="admin-pagination__item <%= p === result.page ? 'is-active' : '' %>"
+                href="?<%= new URLSearchParams({ ...filters, page: p }).toString() %>"
+              ><%= p %></a>
+            <% } %>
+          </div>
+        <% } %>
+      <% } %>
+    </main>
+  </div>
+
+  <dialog id="add-contact-dialog" class="admin-dialog">
+    <form method="post" action="/admin/contacts">
+      <h2>Add Contact</h2>
+      <label>WhatsApp Number *</label>
+      <input type="text" name="whatsappNumber" placeholder="e.g. 918826481301" required />
+      <label>Name</label>
+      <input type="text" name="name" />
+      <label>Email</label>
+      <input type="email" name="email" />
+      <label>City</label>
+      <input type="text" name="city" />
+      <label>Birthday</label>
+      <input type="date" name="birthday" />
+      <label>Anniversary</label>
+      <input type="date" name="anniversary" />
+      <label>Customer Type</label>
+      <select name="customerType">
+        <option value="">—</option>
+        <option value="retail">Retail</option>
+        <option value="wholesale">Wholesale</option>
+        <option value="vip">VIP</option>
+      </select>
+      <div class="admin-dialog__actions">
+        <button type="button" class="btn btn--ghost" id="cancel-add-contact">Cancel</button>
+        <button type="submit" class="btn btn--gold">Add Contact</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="/js/admin-contacts.js"></script>
+</body>
+</html>

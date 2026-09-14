@@ -133,6 +133,20 @@ function verifySignature(rawBody, signatureHeader) {
   return a.length === b.length && crypto.timingSafeEqual(a, b);
 }
 
+const MEDIA_TYPES = ['image', 'video', 'audio', 'document', 'sticker'];
+
+function extractMedia(msg) {
+  if (!MEDIA_TYPES.includes(msg.type)) return null;
+  const obj = msg[msg.type];
+  if (!obj) return null;
+  return {
+    id: obj.id || null,
+    mimeType: obj.mime_type || null,
+    caption: obj.caption || null,
+    filename: obj.filename || null,
+  };
+}
+
 /** Flatten an incoming webhook payload into a list of message objects. */
 function parseIncoming(payload) {
   const out = [];
@@ -152,12 +166,56 @@ function parseIncoming(payload) {
           timestamp: msg.timestamp,
           type: msg.type,
           text: msg.text ? msg.text.body : null,
+          media: extractMedia(msg),
+          contextId: msg.context ? msg.context.id : null,
           raw: msg,
         });
       }
     }
   }
   return out;
+}
+
+/** Flatten an incoming webhook payload into a list of status update objects. */
+function parseStatuses(payload) {
+  const out = [];
+  const entries = Array.isArray(payload && payload.entry) ? payload.entry : [];
+  for (const entry of entries) {
+    const changes = Array.isArray(entry.changes) ? entry.changes : [];
+    for (const change of changes) {
+      const statuses = (change.value || {}).statuses || [];
+      for (const status of statuses) {
+        out.push({
+          whatsappMessageId: status.id,
+          status: status.status, // sent | delivered | read | failed
+          timestamp: status.timestamp,
+          recipientId: status.recipient_id,
+          errorMessage:
+            Array.isArray(status.errors) && status.errors[0]
+              ? status.errors[0].title || status.errors[0].message
+              : null,
+          raw: status,
+        });
+      }
+    }
+  }
+  return out;
+}
+
+/** Fetch a media object's temporary download URL, then stream its bytes back. */
+async function fetchMedia(mediaId) {
+  if (!isConfigured()) throw new Error('WhatsApp Cloud API is not configured.');
+
+  const metaRes = await fetch(`${GRAPH}/${mediaId}`, {
+    headers: { Authorization: `Bearer ${WA.token}` },
+  });
+  if (!metaRes.ok) throw new Error(`Failed to resolve media (${metaRes.status})`);
+  const meta = await metaRes.json();
+
+  const fileRes = await fetch(meta.url, { headers: { Authorization: `Bearer ${WA.token}` } });
+  if (!fileRes.ok) throw new Error(`Failed to download media (${fileRes.status})`);
+
+  return { mimeType: meta.mime_type, buffer: Buffer.from(await fileRes.arrayBuffer()) };
 }
 
 module.exports = {
@@ -169,4 +227,6 @@ module.exports = {
   verifyWebhook,
   verifySignature,
   parseIncoming,
+  parseStatuses,
+  fetchMedia,
 };

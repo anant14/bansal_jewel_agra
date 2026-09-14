@@ -63,10 +63,10 @@ model Contact {
   source         String? // e.g. website, walk_in, referral, website_gold_rate
   customerType   String?   @map("customer_type") // e.g. retail, wholesale, vip
 
-  optInStatus String    @default("unknown") @map("opt_in_status") // opted_in | opted_out | unknown
-  optInSource String?   @map("opt_in_source")
-  optInAt     DateTime? @map("opt_in_at")
-  optOutAt    DateTime? @map("opt_out_at")
+  marketingOptIn      Boolean   @default(false) @map("marketing_opt_in")
+  marketingOptInAt    DateTime? @map("marketing_opt_in_at")
+  marketingOptOutAt   DateTime? @map("marketing_opt_out_at")
+  optInSource         String?   @map("opt_in_source")
 
   firstInteractionAt DateTime? @map("first_interaction_at")
   lastInteractionAt  DateTime? @map("last_interaction_at")
@@ -82,7 +82,7 @@ model Contact {
   consents      Consent[]
   conversations Conversation[]
 
-  @@index([optInStatus])
+  @@index([marketingOptIn])
   @@index([source])
   @@map("contacts")
 }
@@ -130,8 +130,9 @@ model Consent {
   id                String   @id @default(cuid())
   contactId         String   @map("contact_id")
   whatsappAccountId String?  @map("whatsapp_account_id")
+  purpose           String   @default("marketing") // marketing — room for other consent purposes later
   status            String // opted_in | opted_out
-  source            String? // e.g. website_gold_rate, whatsapp_stop_keyword, manual
+  source            String? // e.g. website_gold_rate, whatsapp_stop_keyword, manual, whatsapp_conversation
   eventAt           DateTime @default(now()) @map("event_at")
   rawPayload        Json?    @map("raw_payload")
 
@@ -160,32 +161,43 @@ model Conversation {
   assignedAgent   AdminUser?      @relation("ConversationAssignee", fields: [assignedAgentId], references: [id])
   messages        Message[]
 
+  @@unique([contactId, whatsappAccountId])
   @@index([status])
   @@index([assignedAgentId])
   @@map("conversations")
 }
 
 model Message {
-  id                String    @id @default(cuid())
-  conversationId    String    @map("conversation_id")
-  whatsappAccountId String    @map("whatsapp_account_id")
-  whatsappMessageId String?   @unique @map("whatsapp_message_id") // Meta's wamid — idempotency key
-  direction         String // inbound | outbound
-  type              String // text | image | video | audio | document | template | interactive
-  textBody          String?   @map("text_body")
-  mediaId           String?   @map("media_id")
-  templateName      String?   @map("template_name")
-  status            String    @default("sent") // sent | delivered | read | failed
-  isAiGenerated     Boolean   @default(false) @map("is_ai_generated")
-  sentAt            DateTime? @map("sent_at")
-  rawPayload        Json?     @map("raw_payload")
-  createdAt         DateTime  @default(now()) @map("created_at")
+  id                     String    @id @default(cuid())
+  conversationId         String    @map("conversation_id")
+  contactId              String    @map("contact_id") // denormalized for fast per-contact queries/timeline
+  whatsappAccountId      String    @map("whatsapp_account_id")
+  whatsappMessageId      String?   @unique @map("whatsapp_message_id") // Meta's wamid — idempotency key
+  contextWhatsappMessageId String? @map("context_whatsapp_message_id") // wamid this message replies to, if any
+  direction              String // inbound | outbound
+  type                   String // text | image | video | audio | document | template | interactive
+  textBody               String?   @map("text_body")
+  mediaId                String?   @map("media_id") // Meta media object id — fetched on demand, never stored locally
+  mediaMimeType          String?   @map("media_mime_type")
+  mediaCaption           String?   @map("media_caption")
+  mediaFilename          String?   @map("media_filename")
+  templateName           String?   @map("template_name")
+  status                 String    @default("sent") // queued | sent | delivered | read | failed
+  errorMessage           String?   @map("error_message")
+  isAiGenerated          Boolean   @default(false) @map("is_ai_generated")
+  sentAt                 DateTime? @map("sent_at")
+  deliveredAt            DateTime? @map("delivered_at")
+  readAt                 DateTime? @map("read_at")
+  failedAt               DateTime? @map("failed_at")
+  rawPayload             Json?     @map("raw_payload")
+  createdAt              DateTime  @default(now()) @map("created_at")
 
   conversation    Conversation    @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   whatsappAccount WhatsappAccount @relation(fields: [whatsappAccountId], references: [id])
   events          MessageEvent[]
 
   @@index([conversationId])
+  @@index([contactId])
   @@map("messages")
 }
 
@@ -198,6 +210,7 @@ model MessageEvent {
 
   message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
 
+  @@unique([messageId, eventType])
   @@index([messageId])
   @@map("message_events")
 }
@@ -218,12 +231,14 @@ model WebhookEvent {
 model AuditLog {
   id        String   @id @default(cuid())
   actorId   String?  @map("actor_id")
-  action    String
-  entity    String?
+  contactId String?  @map("contact_id") // which customer's timeline this belongs to, if any
+  action    String // contact_created | tag_added | tag_removed | note_added | consent_changed | message_inbound | message_outbound | ...
+  entity    String? // the record this event is actually about, e.g. "message", "contact_tag"
   entityId  String?  @map("entity_id")
-  meta      Json?
+  meta      Json? // small structured details (e.g. { preview, tagName }) — never full message bodies twice over
   createdAt DateTime @default(now()) @map("created_at")
 
+  @@index([contactId])
   @@index([entity, entityId])
   @@map("audit_logs")
 }

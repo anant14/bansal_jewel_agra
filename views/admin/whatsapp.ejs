@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <%- include('partials/head') %>
+  <link rel="stylesheet" href="/css/whatsapp.css" />
+</head>
+<body>
+  <div class="admin-shell">
+    <%- include('partials/sidebar') %>
+    <main class="admin-main admin-main--whatsapp">
+      <% if (!whatsappConfigured) { %>
+        <div class="wa-demo-banner" style="background:#5C4B00;">
+          WhatsApp Cloud API is not configured yet (missing token/phone number ID) — incoming messages from Meta will
+          still be received and stored, but outgoing replies will fail until it's set up.
+        </div>
+      <% } %>
+
+      <div class="wa-app" id="wa-app">
+        <aside class="wa-sidebar">
+          <div class="wa-sidebar__header">
+            <div class="wa-avatar wa-avatar--lg"><%= brand.initials %></div>
+            <strong><%= brand.name %></strong>
+          </div>
+          <div class="wa-sidebar__search">
+            <input id="wa-search-input" type="text" placeholder="Search conversations" autocomplete="off" />
+          </div>
+          <div class="wa-conversations" id="wa-conversations"></div>
+        </aside>
+
+        <section class="wa-chat">
+          <div class="wa-empty" id="wa-empty">
+            <div>
+              <p style="font-size:16px;color:var(--wa-text-1);margin-bottom:6px;">WhatsApp Inbox</p>
+              <p>Select a conversation on the left to view and reply.</p>
+            </div>
+          </div>
+
+          <div class="wa-chat__header" id="wa-chat-header" hidden>
+            <div class="wa-chat__who">
+              <button class="wa-chat__back" id="wa-back-btn" aria-label="Back to chat list">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20z"/></svg>
+              </button>
+              <div class="wa-avatar" id="wa-chat-avatar"></div>
+              <div>
+                <div class="wa-chat__name" id="wa-chat-name"></div>
+                <div class="wa-chat__status" id="wa-chat-status"></div>
+              </div>
+            </div>
+            <div class="wa-chat__icons">
+              <select id="wa-status-select" class="wa-status-select">
+                <option value="open">Open</option>
+                <option value="pending">Pending</option>
+                <option value="resolved">Resolved</option>
+              </select>
+              <button type="button" class="wa-icon-btn" id="wa-profile-toggle" aria-label="Customer info">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12a4.8 4.8 0 1 0-4.8-4.8A4.8 4.8 0 0 0 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8V21h19.2v-1.8c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="wa-messages" id="wa-messages"></div>
+
+          <div class="wa-emoji-picker" id="wa-emoji-picker" hidden>
+            <% ['😀','😂','😍','😊','🙏','👍','🎉','❤️','😢','😮','🔥','💍','💎','✨','🙌','👌','😅','🤔','😎','🥳','💯','🎁','🛍️','📸'].forEach(function (e) { %>
+              <button type="button" class="wa-emoji-picker__item"><%= e %></button>
+            <% }); %>
+          </div>
+
+          <form class="wa-composer" id="wa-composer" hidden>
+            <div class="wa-composer__icons">
+              <button type="button" class="wa-icon-btn" id="wa-emoji-btn" aria-label="Emoji">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm-3 6.5A1.5 1.5 0 1 1 7.5 10 1.5 1.5 0 0 1 9 8.5zm7.5 1.5A1.5 1.5 0 1 1 15 8.5 1.5 1.5 0 0 1 16.5 10zM12 18c-2.5 0-4.6-1.4-5.7-3.5a.9.9 0 0 1 1.6-.8A5 5 0 0 0 12 16a5 5 0 0 0 4.1-2.3.9.9 0 1 1 1.6.8A6.9 6.9 0 0 1 12 18z"/></svg>
+              </button>
+            </div>
+            <input id="wa-composer-input" type="text" placeholder="Type a message" autocomplete="off" />
+            <button type="submit" class="wa-composer__send" aria-label="Send">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+            </button>
+          </form>
+        </section>
+
+        <aside class="wa-profile" id="wa-profile" hidden>
+          <div class="wa-profile__header">
+            <div class="wa-avatar wa-avatar--lg" id="wa-profile-avatar"></div>
+            <div class="wa-profile__name" id="wa-profile-name"></div>
+            <div class="wa-profile__number" id="wa-profile-number"></div>
+            <a href="#" id="wa-profile-link" class="wa-profile__link" target="_blank" rel="noopener">Open full contact profile &rarr;</a>
+          </div>
+
+          <div class="wa-profile__section">
+            <h4>Tags</h4>
+            <div class="wa-tag-list" id="wa-profile-tags"></div>
+            <form id="wa-add-tag-form" class="wa-inline-form">
+              <input type="text" id="wa-add-tag-input" placeholder="Add tag…" list="wa-tag-options" autocomplete="off" />
+              <datalist id="wa-tag-options"></datalist>
+              <button type="submit">Add</button>
+            </form>
+          </div>
+
+          <div class="wa-profile__section">
+            <h4>Consent</h4>
+            <div id="wa-profile-consent"></div>
+          </div>
+
+          <div class="wa-profile__section">
+            <h4>Source &amp; Interaction</h4>
+            <dl class="wa-profile__meta">
+              <dt>Source</dt><dd id="wa-profile-source"></dd>
+              <dt>First contact</dt><dd id="wa-profile-first"></dd>
+              <dt>Last contact</dt><dd id="wa-profile-last"></dd>
+            </dl>
+          </div>
+
+          <div class="wa-profile__section wa-profile__section--grow">
+            <h4>Internal Notes</h4>
+            <div class="wa-notes-list" id="wa-profile-notes"></div>
+            <form id="wa-add-note-form" class="wa-inline-form wa-inline-form--stack">
+              <textarea id="wa-add-note-input" rows="2" placeholder="Internal note — never sent to the customer"></textarea>
+              <button type="submit">Add Note</button>
+            </form>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <script src="/js/admin-whatsapp.js"></script>
+</body>
+</html>
