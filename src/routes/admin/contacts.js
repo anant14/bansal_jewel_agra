@@ -10,31 +10,6 @@ const NAV = require('./nav');
 
 const router = express.Router();
 
-// TEMPORARY (again): one more leftover test contact from a background
-// polling loop during Phase 1 verification. Removed right after use.
-router.post('/api/dev/purge-test-contacts', async (req, res, next) => {
-  try {
-    const prisma = require('../../db/prisma');
-    const contacts = await prisma.contact.findMany({ where: { whatsappNumber: { startsWith: '9111111' } } });
-    for (const c of contacts) {
-      const convos = await prisma.conversation.findMany({ where: { contactId: c.id } });
-      for (const convo of convos) {
-        await prisma.messageEvent.deleteMany({ where: { message: { conversationId: convo.id } } });
-        await prisma.message.deleteMany({ where: { conversationId: convo.id } });
-      }
-      await prisma.conversation.deleteMany({ where: { contactId: c.id } });
-      await prisma.contactTag.deleteMany({ where: { contactId: c.id } });
-      await prisma.contactNote.deleteMany({ where: { contactId: c.id } });
-      await prisma.consent.deleteMany({ where: { contactId: c.id } });
-      await prisma.auditLog.deleteMany({ where: { contactId: c.id } });
-      await prisma.contact.delete({ where: { id: c.id } });
-    }
-    res.json({ purged: contacts.map((c) => c.whatsappNumber) });
-  } catch (err) {
-    next(err);
-  }
-});
-
 const NAV_ACTIVE = 'contacts';
 
 /* ───────────────────────────── pages ───────────────────────────────── */
