@@ -70,3 +70,54 @@
     </form>
   </div>
 </div>
+
+<!-- Gold & Silver Rate request modal -->
+<div class="modal" id="rate-modal" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="modal__box" style="position:relative">
+    <button class="modal__close" data-modal-close aria-label="Close">&times;</button>
+
+    <form class="form" id="rate-form" novalidate>
+      <h3 class="form__title">Get Today&rsquo;s Gold &amp; Silver Rate</h3>
+      <p class="form__note">
+        Enter your WhatsApp number and we&rsquo;ll send today&rsquo;s gold &amp; silver rates straight to you.
+      </p>
+
+      <!-- honeypot -->
+      <div class="form__hp" aria-hidden="true">
+        <label>Company <input type="text" name="company" tabindex="-1" autocomplete="off" /></label>
+      </div>
+
+      <div class="form__row">
+        <div class="field">
+          <label for="r-name">Your Name <span style="text-transform:none">(optional)</span></label>
+          <input type="text" id="r-name" name="name" autocomplete="name" />
+        </div>
+      </div>
+      <div class="form__row">
+        <div class="field">
+          <label for="r-phone">WhatsApp Number</label>
+          <input type="tel" id="r-phone" name="whatsappNumber" required autocomplete="tel" placeholder="e.g. 98765 43210" />
+        </div>
+      </div>
+
+      <p class="form__consent">
+        By submitting, you agree that <%= typeof brand !== 'undefined' ? brand.name : 'we' %> may send today&rsquo;s
+        requested Gold &amp; Silver rate to this WhatsApp number.
+      </p>
+
+      <label class="form__checkbox">
+        <input type="checkbox" id="r-marketing" name="marketingOptIn" />
+        <span>Also send me occasional jewellery updates, offers and rate updates on WhatsApp.</span>
+      </label>
+
+      <p class="form__msg" id="rate-msg" role="status"></p>
+
+      <button type="submit" class="btn btn--gold btn--block" id="rate-submit">Send Me Today&rsquo;s Rate</button>
+
+      <div class="form__success" id="rate-success" hidden>
+        <h3 id="rate-success-title">Thank you 🙏</h3>
+        <p class="form__note" id="rate-success-text"></p>
+      </div>
+    </form>
+  </div>
+</div>

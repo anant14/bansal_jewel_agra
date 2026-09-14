@@ -20,6 +20,12 @@ const config = {
     appSecret: process.env.WHATSAPP_APP_SECRET || '',
     notifyTo: process.env.WHATSAPP_NOTIFY_TO || '',
     autoReply: process.env.WHATSAPP_AUTO_REPLY !== 'false',
+    // Approved Meta template for business-initiated rate messages (website
+    // flow). Free-form text is only allowed inside an open customer-service
+    // window (e.g. replying to an inbound WhatsApp message) — a
+    // website-triggered send has no such window, so it needs a template.
+    rateTemplateName: process.env.WHATSAPP_RATE_TEMPLATE_NAME || '',
+    rateTemplateLang: process.env.WHATSAPP_RATE_TEMPLATE_LANG || 'en_US',
   },
 };
 

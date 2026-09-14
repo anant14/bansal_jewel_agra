@@ -404,6 +404,40 @@ button { font-family: inherit; cursor: pointer; }
 @media (min-width: 900px) { .hero__slidepill { display: block; } }
 
 /* ---------------------------------------------------------------- */
+/*  gold & silver rate CTA banner                                   */
+/* ---------------------------------------------------------------- */
+.rate-cta {
+  background: linear-gradient(135deg, var(--bg-deep), var(--panel));
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 28px 0;
+}
+.rate-cta__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.rate-cta__eyebrow {
+  font-family: var(--ff-accent);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  color: var(--gold);
+  margin: 0 0 6px;
+}
+.rate-cta__title {
+  font-family: var(--ff-display);
+  font-weight: 400;
+  font-size: clamp(1.3rem, 2.6vw, 1.7rem);
+  color: var(--ivory);
+  margin: 0 0 6px;
+}
+.rate-cta__sub { font-size: 13.5px; color: var(--text-dim); margin: 0; max-width: 46ch; }
+.rate-cta__btn { flex-shrink: 0; white-space: nowrap; }
+
+/* ---------------------------------------------------------------- */
 /*  editorial marquee                                               */
 /* ---------------------------------------------------------------- */
 .marquee {
@@ -1041,6 +1075,18 @@ button { font-family: inherit; cursor: pointer; }
 .form__msg { font-size: 13px; margin: 12px 0 0; min-height: 20px; }
 .form__msg.error { color: #d98b7a; }
 .form__msg.success { color: var(--gold-light); }
+.form__consent { font-size: 12px; color: var(--text-dim); line-height: 1.6; margin: 4px 0 14px; }
+.form__checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 12.5px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+.form__checkbox input { margin-top: 3px; flex-shrink: 0; accent-color: var(--gold); }
 .form__product {
   border: 1px solid var(--line);
   padding: 12px 14px;

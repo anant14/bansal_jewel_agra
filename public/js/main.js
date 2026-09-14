@@ -311,6 +311,85 @@
   }
 
   /* ---------------------------------------------------------------- */
+  /*  gold & silver rate request modal                                */
+  /* ---------------------------------------------------------------- */
+  var rateModal = $('#rate-modal');
+  var rateForm = $('#rate-form');
+  var rateMsg = $('#rate-msg');
+  var rateSubmit = $('#rate-submit');
+  var rateSuccess = $('#rate-success');
+  var rateSuccessTitle = $('#rate-success-title');
+  var rateSuccessText = $('#rate-success-text');
+  var openRateBtn = $('#open-rate-request');
+
+  if (openRateBtn && rateModal) {
+    openRateBtn.addEventListener('click', function () {
+      rateForm.reset();
+      rateForm.hidden = false;
+      $$('.field, .form__consent, .form__checkbox', rateForm).forEach(function (f) { f.hidden = false; });
+      rateSubmit.hidden = false;
+      rateForm.querySelector('.form__note').hidden = false;
+      rateSuccess.hidden = true;
+      if (rateMsg) { rateMsg.textContent = ''; rateMsg.className = 'form__msg'; }
+      openModal(rateModal);
+      var phoneInput = $('#r-phone');
+      if (phoneInput) setTimeout(function () { phoneInput.focus(); }, 60);
+    });
+  }
+
+  if (rateForm) {
+    rateForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (rateMsg) { rateMsg.textContent = ''; rateMsg.className = 'form__msg'; }
+
+      var fd = new FormData(rateForm);
+      var payload = {
+        name: (fd.get('name') || '').trim(),
+        whatsappNumber: (fd.get('whatsappNumber') || '').trim(),
+        marketingOptIn: fd.get('marketingOptIn') === 'on',
+        company: fd.get('company') || ''
+      };
+
+      if (payload.whatsappNumber.replace(/[^\d]/g, '').length < 10) {
+        rateMsg.textContent = 'Please enter a valid WhatsApp number.';
+        rateMsg.className = 'form__msg error';
+        return;
+      }
+
+      rateSubmit.disabled = true;
+      rateSubmit.textContent = 'Sending…';
+
+      fetch('/api/rates/whatsapp-request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
+        .then(function (res) {
+          if (!res.ok || !res.data.ok) {
+            rateMsg.textContent = (res.data && res.data.error) || 'Something went wrong. Please try again.';
+            rateMsg.className = 'form__msg error';
+            return;
+          }
+          $$('.field, .form__consent, .form__checkbox', rateForm).forEach(function (f) { f.hidden = true; });
+          rateSubmit.hidden = true;
+          rateForm.querySelector('.form__note').hidden = true;
+          rateSuccessTitle.textContent = res.data.delivered ? 'Sent! 🙏' : 'Request Received';
+          rateSuccessText.textContent = res.data.message;
+          rateSuccess.hidden = false;
+        })
+        .catch(function () {
+          rateMsg.textContent = 'Network error. Please try again in a moment.';
+          rateMsg.className = 'form__msg error';
+        })
+        .then(function () {
+          rateSubmit.disabled = false;
+          rateSubmit.textContent = "Send Me Today's Rate";
+        });
+    });
+  }
+
+  /* ---------------------------------------------------------------- */
   /*  whatsapp float                                                  */
   /* ---------------------------------------------------------------- */
   var waFloat = $('#wafloat');

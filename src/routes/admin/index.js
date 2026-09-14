@@ -6,6 +6,7 @@ const content = require('../../services/content');
 const authRouter = require('./auth');
 const contactsRouter = require('./contacts');
 const whatsappRouter = require('./whatsapp');
+const ratesRouter = require('./rates');
 const NAV = require('./nav');
 
 const router = express.Router();
@@ -32,6 +33,7 @@ router.get('/', (req, res) => res.redirect('/admin/whatsapp'));
 
 router.use(whatsappRouter); // /admin/whatsapp + /admin/api/whatsapp/*
 router.use(contactsRouter); // /admin/contacts + /admin/api/contacts/*
+router.use(ratesRouter); // /admin/rates + /admin/rates/update
 
 router.get(
   '/templates',
@@ -52,14 +54,6 @@ router.get(
 router.get(
   '/bot-flow',
   renderStub('botflow', 'Bot Flow', 'Visual/rule-based automation flow builder — Phase 5.')
-);
-router.get(
-  '/rates',
-  renderStub(
-    'rates',
-    'Gold & Silver Rates',
-    'Rate entry, history, and the website "Get Today\'s Rate on WhatsApp" flow — Phase 2.'
-  )
 );
 router.get(
   '/ai-assistant',

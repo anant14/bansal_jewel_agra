@@ -238,14 +238,19 @@ async function setConsent(contactId, { status, source, purpose = 'marketing', wh
     data: { contactId, whatsappAccountId: whatsappAccountId || null, purpose, status, source: source || null, rawPayload: rawPayload || undefined },
   });
 
-  const now = new Date();
-  await prisma.contact.update({
-    where: { id: contactId },
-    data:
-      status === 'opted_in'
-        ? { marketingOptIn: true, marketingOptInAt: now, optInSource: source || null }
-        : { marketingOptIn: false, marketingOptOutAt: now },
-  });
+  // Only a "marketing" consent event may change the contact's marketing
+  // fast-state. A one-time service consent (e.g. "send me the rate I just
+  // asked for") must never be mistaken for standing marketing permission.
+  if (purpose === 'marketing') {
+    const now = new Date();
+    await prisma.contact.update({
+      where: { id: contactId },
+      data:
+        status === 'opted_in'
+          ? { marketingOptIn: true, marketingOptInAt: now, optInSource: source || null }
+          : { marketingOptIn: false, marketingOptOutAt: now },
+    });
+  }
 
   await timeline.logEvent({
     contactId,

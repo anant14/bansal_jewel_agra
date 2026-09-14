@@ -124,6 +124,8 @@
 }
 .admin-badge--ok { color: var(--gold-light); border-color: var(--gold-deep); }
 .admin-badge--muted { color: var(--text-dim); }
+.admin-badge--warn { color: #E0B84B; border-color: #7A5F1E; }
+.admin-badge--danger { color: #E5786B; border-color: #7A2F26; }
 .admin-badge__remove-form { display: inline; }
 .admin-badge__remove-form button {
   background: none; border: none; color: var(--text-dim); cursor: pointer; padding: 0; font-size: 13px; line-height: 1;
@@ -277,6 +279,42 @@
   font-size: 13px;
   margin: -8px 0 18px;
   text-align: center;
+}
+
+/* ---------------- rates module ---------------- */
+.admin-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+  margin-bottom: 28px;
+}
+.admin-metric {
+  background: var(--panel);
+  border: 1px solid var(--line-soft);
+  border-radius: 12px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.admin-metric__n { font-family: var(--ff-display); font-size: 2rem; color: var(--ivory); font-weight: 400; }
+.admin-metric__l { font-size: 12px; color: var(--text-dim); }
+
+.admin-warning {
+  background: rgba(224, 184, 75, 0.1);
+  border: 1px solid #7A5F1E;
+  color: #E0B84B;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13.5px;
+  margin-bottom: 16px;
+}
+
+.admin-rate-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
 }
 
 @media (max-width: 760px) {

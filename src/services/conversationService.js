@@ -94,7 +94,7 @@ async function recordInboundMessage({ contact, whatsappAccount, parsed }) {
  * the Cloud API service returned — { skipped: true } when WhatsApp isn't
  * configured, or Meta's real response containing the new message id.
  */
-async function recordOutboundMessage({ contact, whatsappAccount, text, actorId, sendResult }) {
+async function recordOutboundMessage({ contact, whatsappAccount, text, actorId, sendResult, type = 'text', templateName = null }) {
   const conversation = await findOrCreateConversation({
     contactId: contact.id,
     whatsappAccountId: whatsappAccount.id,
@@ -103,7 +103,9 @@ async function recordOutboundMessage({ contact, whatsappAccount, text, actorId, 
   const whatsappMessageId =
     sendResult && sendResult.messages && sendResult.messages[0] ? sendResult.messages[0].id : null;
   const status = sendResult && sendResult.skipped ? 'failed' : 'sent';
-  const errorMessage = sendResult && sendResult.skipped ? 'WhatsApp Cloud API is not configured.' : null;
+  const errorMessage = sendResult && sendResult.skipped
+    ? sendResult.error || 'WhatsApp Cloud API is not configured.'
+    : null;
   const now = new Date();
 
   const message = await prisma.message.create({
@@ -113,7 +115,8 @@ async function recordOutboundMessage({ contact, whatsappAccount, text, actorId, 
       whatsappAccountId: whatsappAccount.id,
       whatsappMessageId,
       direction: 'outbound',
-      type: 'text',
+      type,
+      templateName,
       textBody: text,
       status,
       errorMessage,

@@ -9,6 +9,9 @@ const prisma = require('../db/prisma');
 const whatsappAccountService = require('../services/whatsappAccountService');
 const contactService = require('../services/contactService');
 const conversationService = require('../services/conversationService');
+const rateBot = require('../services/rateBot');
+const rateDelivery = require('../services/rateDelivery');
+const rateRequestService = require('../services/rateRequestService');
 const logger = require('../utils/logger');
 
 const router = express.Router();
@@ -117,6 +120,17 @@ async function handleInboundMessage(parsed, account) {
       null
     );
     logger.info('whatsapp: contact opted out via keyword', contact.whatsappNumber);
+    return; // STOP is terminal — no bot reply, no generic auto-reply
+  }
+
+  // Deterministic routing: a specialized intent (rate) takes priority
+  // over, and suppresses, the generic auto-reply — never both.
+  if (parsed.type === 'text') {
+    const intent = rateBot.detectRateIntent(parsed.text);
+    if (intent) {
+      const handled = await handleRateIntent({ contact, account, intent, message });
+      if (handled) return;
+    }
   }
 
   if (!config.whatsapp.autoReply || !whatsapp.isConfigured()) return;
@@ -133,6 +147,34 @@ async function handleInboundMessage(parsed, account) {
     await conversationService.recordOutboundMessage({ contact, whatsappAccount: account, text: reply, sendResult });
   } catch (err) {
     logger.error('whatsapp: auto-reply failed', err.message);
+  }
+}
+
+/** Returns true if the rate bot fully handled this message (send attempted + logged either way). */
+async function handleRateIntent({ contact, account, intent, message }) {
+  try {
+    await whatsapp.markRead(message.whatsappMessageId);
+    const deliveryResult = await rateDelivery.sendRateMessage({
+      contact,
+      whatsappAccount: account,
+      mode: 'bot',
+      requestedType: intent,
+      actorId: null,
+    });
+    await rateRequestService.recordRateRequest({
+      contact,
+      whatsappAccount: account,
+      source: 'whatsapp_bot',
+      requestedType: intent,
+      marketingOptIn: false,
+      deliveryResult,
+      ipHash: null,
+    });
+    logger.info('whatsapp: rate bot replied', contact.whatsappNumber, intent, deliveryResult.status);
+    return true;
+  } catch (err) {
+    logger.error('whatsapp: rate bot failed', err.message);
+    return false;
   }
 }
 

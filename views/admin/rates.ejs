@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <div class="admin-shell">
+    <%- include('partials/sidebar') %>
+    <main class="admin-main">
+      <div class="admin-header">
+        <h1>Gold &amp; Silver Rates</h1>
+      </div>
+
+      <div class="admin-metrics">
+        <div class="admin-metric"><span class="admin-metric__n"><%= metrics.todayRequests %></span><span class="admin-metric__l">Today's Rate Requests</span></div>
+        <div class="admin-metric"><span class="admin-metric__n"><%= metrics.websiteRequests %></span><span class="admin-metric__l">Website Requests</span></div>
+        <div class="admin-metric"><span class="admin-metric__n"><%= metrics.botRequests %></span><span class="admin-metric__l">WhatsApp Bot Requests</span></div>
+        <div class="admin-metric"><span class="admin-metric__n"><%= metrics.successfulSends %></span><span class="admin-metric__l">Successful Sends</span></div>
+        <div class="admin-metric"><span class="admin-metric__n"><%= metrics.marketingOptIns %></span><span class="admin-metric__l">Marketing Opt-ins</span></div>
+      </div>
+
+      <div class="admin-card admin-section">
+        <div class="admin-section__head">
+          <h3>Today's Current Rates</h3>
+        </div>
+
+        <% const anyNotCurrent = currentRates.some(function (r) { return r.status !== 'current'; }); %>
+        <% if (anyNotCurrent) { %>
+          <p class="admin-warning">Today's rates have not been fully updated. Values marked "stale" below are NOT being sent to customers.</p>
+        <% } %>
+
+        <table class="admin-table">
+          <thead>
+            <tr><th>Rate Type</th><th>Rate</th><th>Unit</th><th>Status</th><th>Last Updated</th><th>Source</th></tr>
+          </thead>
+          <tbody>
+            <% currentRates.forEach(function (r) { %>
+              <tr>
+                <td><%= r.rateType.displayName %></td>
+                <td>
+                  <% if (r.status === 'current') { %>
+                    ₹<%= Number(r.entry.value).toLocaleString('en-IN') %>
+                  <% } else if (r.latestEntry) { %>
+                    <span class="admin-muted">₹<%= Number(r.latestEntry.value).toLocaleString('en-IN') %> (not today's)</span>
+                  <% } else { %>
+                    <span class="admin-muted">—</span>
+                  <% } %>
+                </td>
+                <td><%= r.rateType.unit %></td>
+                <td>
+                  <% if (r.status === 'current') { %>
+                    <span class="admin-badge admin-badge--ok">Current</span>
+                  <% } else if (r.status === 'stale') { %>
+                    <span class="admin-badge admin-badge--warn">Stale</span>
+                  <% } else { %>
+                    <span class="admin-badge admin-badge--danger">Missing</span>
+                  <% } %>
+                </td>
+                <td>
+                  <% const shown = r.entry || r.latestEntry; %>
+                  <%= shown ? new Date(shown.effectiveAt).toLocaleString('en-IN') : '—' %>
+                </td>
+                <td><%= shown ? shown.source : '—' %></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="admin-card admin-section">
+        <h3>Update Today's Rates</h3>
+        <form method="post" action="/admin/rates/update" class="admin-form">
+          <div class="admin-rate-grid">
+            <% allRateTypes.filter(function (rt) { return rt.isActive; }).forEach(function (rt) { %>
+              <div class="admin-form__row">
+                <label><%= rt.displayName %> <span class="admin-muted">(₹ / <%= rt.unit %>)</span></label>
+                <input type="number" step="0.01" min="0.01" name="rate_<%= rt.code %>" placeholder="e.g. 72500" />
+              </div>
+            <% }); %>
+          </div>
+          <button type="submit" class="btn btn--gold">Update Today's Rates</button>
+        </form>
+      </div>
+
+      <div class="admin-card admin-section">
+        <h3>Rate History</h3>
+        <form class="admin-filters" method="get" action="/admin/rates">
+          <input type="date" name="from" value="<%= historyFilters.from %>" placeholder="From" />
+          <input type="date" name="to" value="<%= historyFilters.to %>" placeholder="To" />
+          <select name="metal">
+            <option value="">All metals</option>
+            <option value="gold" <%= historyFilters.metal === 'gold' ? 'selected' : '' %>>Gold</option>
+            <option value="silver" <%= historyFilters.metal === 'silver' ? 'selected' : '' %>>Silver</option>
+          </select>
+          <select name="rateType">
+            <option value="">All rate types</option>
+            <% allRateTypes.forEach(function (rt) { %>
+              <option value="<%= rt.code %>" <%= historyFilters.rateTypeCode === rt.code ? 'selected' : '' %>><%= rt.name %></option>
+            <% }); %>
+          </select>
+          <button type="submit" class="btn btn--ghost">Filter</button>
+        </form>
+
+        <% if (!history.entries.length) { %>
+          <div class="admin-empty"><h2>No rate history yet</h2><p>Enter today's rates above to start building history.</p></div>
+        <% } else { %>
+          <table class="admin-table">
+            <thead><tr><th>Date</th><th>Rate Type</th><th>Rate</th><th>Unit</th><th>Source</th><th>Entered By</th><th>Updated</th></tr></thead>
+            <tbody>
+              <% history.entries.forEach(function (e) { %>
+                <tr>
+                  <td><%= e.rateDate.toISOString().slice(0,10) %></td>
+                  <td><%= e.rateType.name %></td>
+                  <td>₹<%= Number(e.value).toLocaleString('en-IN') %></td>
+                  <td><%= e.rateType.unit %></td>
+                  <td><%= e.source %></td>
+                  <td><%= e.enteredBy ? e.enteredBy.name : '—' %></td>
+                  <td><%= new Date(e.updatedAt).toLocaleString('en-IN') %></td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+          <% if (history.totalPages > 1) { %>
+            <div class="admin-pagination">
+              <% for (let p = 1; p <= history.totalPages; p++) { %>
+                <a class="admin-pagination__item <%= p === history.page ? 'is-active' : '' %>"
+                   href="?<%= new URLSearchParams({ ...historyFilters, historyPage: p }).toString() %>"><%= p %></a>
+              <% } %>
+            </div>
+          <% } %>
+        <% } %>
+      </div>
+
+      <div class="admin-card admin-section">
+        <h3>Rate Requests</h3>
+        <form class="admin-filters" method="get" action="/admin/rates">
+          <select name="range">
+            <option value="today" <%= requestFilters.range === 'today' ? 'selected' : '' %>>Today</option>
+            <option value="7d" <%= requestFilters.range === '7d' ? 'selected' : '' %>>7 Days</option>
+            <option value="30d" <%= requestFilters.range === '30d' ? 'selected' : '' %>>30 Days</option>
+            <option value="all" <%= requestFilters.range === 'all' ? 'selected' : '' %>>All</option>
+          </select>
+          <select name="reqSource">
+            <option value="">Any source</option>
+            <option value="website" <%= requestFilters.source === 'website' ? 'selected' : '' %>>Website</option>
+            <option value="whatsapp_bot" <%= requestFilters.source === 'whatsapp_bot' ? 'selected' : '' %>>WhatsApp</option>
+          </select>
+          <select name="reqStatus">
+            <option value="">Any status</option>
+            <option value="sent" <%= requestFilters.status === 'sent' ? 'selected' : '' %>>Sent</option>
+            <option value="failed" <%= requestFilters.status === 'failed' ? 'selected' : '' %>>Failed</option>
+            <option value="pending_configuration" <%= requestFilters.status === 'pending_configuration' ? 'selected' : '' %>>Pending Configuration</option>
+            <option value="rate_missing" <%= requestFilters.status === 'rate_missing' ? 'selected' : '' %>>Rate Missing</option>
+          </select>
+          <button type="submit" class="btn btn--ghost">Filter</button>
+        </form>
+
+        <% if (!requestsResult.requests.length) { %>
+          <div class="admin-empty"><h2>No rate requests yet</h2><p>Website and WhatsApp rate requests will show up here.</p></div>
+        <% } else { %>
+          <table class="admin-table">
+            <thead><tr><th>Date/Time</th><th>Customer</th><th>Number</th><th>Source</th><th>Requested</th><th>Marketing</th><th>Status</th></tr></thead>
+            <tbody>
+              <% requestsResult.requests.forEach(function (r) { %>
+                <tr>
+                  <td><%= new Date(r.createdAt).toLocaleString('en-IN') %></td>
+                  <td><a class="admin-table__link" href="/admin/contacts/<%= r.contact.id %>"><%= r.contact.name || '—' %></a></td>
+                  <td>+<%= r.contact.whatsappNumber %></td>
+                  <td><%= r.source %></td>
+                  <td><%= r.requestedType %></td>
+                  <td><%= r.marketingOptIn ? 'Yes' : 'No' %></td>
+                  <td>
+                    <span class="admin-badge <%= r.deliveryStatus === 'sent' ? 'admin-badge--ok' : r.deliveryStatus === 'failed' ? 'admin-badge--danger' : 'admin-badge--warn' %>">
+                      <%= r.deliveryStatus %>
+                    </span>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+          <% if (requestsResult.totalPages > 1) { %>
+            <div class="admin-pagination">
+              <% for (let p = 1; p <= requestsResult.totalPages; p++) { %>
+                <a class="admin-pagination__item <%= p === requestsResult.page ? 'is-active' : '' %>"
+                   href="?<%= new URLSearchParams({ range: requestFilters.range, reqSource: requestFilters.source, reqStatus: requestFilters.status, requestPage: p }).toString() %>"><%= p %></a>
+              <% } %>
+            </div>
+          <% } %>
+        <% } %>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
