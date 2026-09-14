@@ -12,6 +12,36 @@ const router = express.Router();
 
 const NAV_ACTIVE = 'contacts';
 
+// TEMPORARY: purges test contacts (and their conversations/messages/tags/
+// notes/consents/timeline) created while verifying Phase 1 end-to-end
+// against production. Removed immediately after cleanup — not a real
+// "delete contact" feature.
+router.post('/api/dev/purge-test-contacts', async (req, res, next) => {
+  try {
+    const prisma = require('../../db/prisma');
+    const prefixes = ['911111100', '919999900001'];
+    const contacts = await prisma.contact.findMany({
+      where: { OR: prefixes.map((p) => ({ whatsappNumber: { startsWith: p } })) },
+    });
+    for (const c of contacts) {
+      const convos = await prisma.conversation.findMany({ where: { contactId: c.id } });
+      for (const convo of convos) {
+        await prisma.messageEvent.deleteMany({ where: { message: { conversationId: convo.id } } });
+        await prisma.message.deleteMany({ where: { conversationId: convo.id } });
+      }
+      await prisma.conversation.deleteMany({ where: { contactId: c.id } });
+      await prisma.contactTag.deleteMany({ where: { contactId: c.id } });
+      await prisma.contactNote.deleteMany({ where: { contactId: c.id } });
+      await prisma.consent.deleteMany({ where: { contactId: c.id } });
+      await prisma.auditLog.deleteMany({ where: { contactId: c.id } });
+      await prisma.contact.delete({ where: { id: c.id } });
+    }
+    res.json({ purged: contacts.map((c) => c.whatsappNumber) });
+  } catch (err) {
+    next(err);
+  }
+});
+
 /* ───────────────────────────── pages ───────────────────────────────── */
 
 router.get('/contacts', async (req, res, next) => {
@@ -199,8 +229,8 @@ router.post('/api/contacts/:id/update', async (req, res, next) => {
 
 router.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
   logger.error('admin/contacts: request failed', err.message);
-  if (req.path.startsWith('/api/')) return res.status(500).json({ error: 'server_error', debug: err.message });
-  res.status(500).send('Something went wrong.<pre>' + require('util').inspect(err) + '</pre>');
+  if (req.path.startsWith('/api/')) return res.status(500).json({ error: 'server_error' });
+  res.status(500).send('Something went wrong.');
 });
 
 module.exports = router;
