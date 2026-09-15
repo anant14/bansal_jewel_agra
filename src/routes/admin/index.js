@@ -7,6 +7,8 @@ const authRouter = require('./auth');
 const contactsRouter = require('./contacts');
 const whatsappRouter = require('./whatsapp');
 const ratesRouter = require('./rates');
+const templatesRouter = require('./templates');
+const mediaRouter = require('./media');
 const NAV = require('./nav');
 
 const router = express.Router();
@@ -34,15 +36,9 @@ router.get('/', (req, res) => res.redirect('/admin/whatsapp'));
 router.use(whatsappRouter); // /admin/whatsapp + /admin/api/whatsapp/*
 router.use(contactsRouter); // /admin/contacts + /admin/api/contacts/*
 router.use(ratesRouter); // /admin/rates + /admin/rates/update
+router.use(templatesRouter); // /admin/templates + /admin/templates/*
+router.use(mediaRouter); // /admin/media + /admin/api/media
 
-router.get(
-  '/templates',
-  renderStub('templates', 'Templates', 'Meta message template manager and jewellery presets — Phase 3.')
-);
-router.get(
-  '/media',
-  renderStub('media', 'Media Library', 'Reusable image/video/document library for campaigns and templates — Phase 3.')
-);
 router.get(
   '/campaigns',
   renderStub('campaigns', 'Campaigns', 'Campaign builder, audience targeting, queue and analytics — Phase 4.')

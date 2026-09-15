@@ -4,30 +4,8 @@ const config = require('../config');
 const whatsapp = require('./whatsapp');
 const rateService = require('./rateService');
 const conversationService = require('./conversationService');
+const templateService = require('./templateService');
 const logger = require('../utils/logger');
-
-/**
- * Builds the Meta template body-parameter components for the
- * `today_gold_silver_rate` template. The exact variable order must match
- * whatever gets approved in Meta Business Manager — this is a reasonable
- * default (date, then each active rate type's formatted value) that will
- * likely need adjusting once the real template exists (see Phase 2 report).
- */
-function buildTemplateComponents(currentRates) {
-  const dateLabel = new Date().toLocaleDateString('en-IN', {
-    timeZone: 'Asia/Kolkata',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
-  const params = [{ type: 'text', text: dateLabel }].concat(
-    currentRates.map((r) => ({
-      type: 'text',
-      text: `₹${Number(r.entry.value).toLocaleString('en-IN')} / ${r.rateType.unit}`,
-    }))
-  );
-  return [{ type: 'body', parameters: params }];
-}
 
 /**
  * Sends today's rate (or a safe fallback if it's missing/stale) to a
@@ -85,32 +63,36 @@ async function sendRateMessage({ contact, whatsappAccount, mode, requestedType =
   }
 
   // mode === 'website' — business-initiated, needs an approved template.
-  if (!whatsapp.isConfigured() || !config.whatsapp.rateTemplateName) {
+  // Resolved through the real Template Manager (Phase 3) — no hard-coded
+  // variable order lives here anymore. The template itself is looked up
+  // by name (config.whatsapp.rateTemplateName), and only used if Meta has
+  // actually approved it; the local record is never trusted otherwise.
+  const template = await templateService.getApprovedTemplateByName(config.whatsapp.rateTemplateName);
+  if (!whatsapp.isConfigured() || !template) {
     const { message } = await conversationService.recordOutboundMessage({
       contact, whatsappAccount, text, actorId,
-      sendResult: { skipped: true, error: 'WhatsApp rate template is not configured yet.' },
+      sendResult: { skipped: true, error: 'The gold/silver rate WhatsApp template is not approved/configured yet.' },
     });
     return { delivered: false, status: 'pending_configuration', message, rates: currentRates, textSent: text };
   }
 
-  let sendResult;
+  let values;
   try {
-    sendResult = await whatsapp.sendTemplate(
-      contact.whatsappNumber,
-      config.whatsapp.rateTemplateName,
-      config.whatsapp.rateTemplateLang,
-      buildTemplateComponents(currentRates)
-    );
+    values = await templateService.resolveTemplate(template.id, contact);
   } catch (err) {
-    logger.error('rateDelivery: website template send failed', err.message);
-    sendResult = { skipped: true, error: err.message };
+    // Should be rare here (allCurrentFor already checked), but never send
+    // a template with an unresolved/stale variable value.
+    logger.error('rateDelivery: template variable resolution failed', err.message);
+    const { message } = await conversationService.recordOutboundMessage({
+      contact, whatsappAccount, text, actorId,
+      sendResult: { skipped: true, error: err.message },
+    });
+    return { delivered: false, status: 'rate_missing', message, rates: currentRates, textSent: text };
   }
-  const { message } = await conversationService.recordOutboundMessage({
-    contact, whatsappAccount, text, actorId, sendResult,
-    type: 'template', templateName: config.whatsapp.rateTemplateName,
-  });
+
+  const message = await templateService.sendTemplateToContact(template, contact, whatsappAccount, values, actorId);
   return {
-    delivered: Boolean(sendResult && !sendResult.skipped),
+    delivered: message.status === 'sent',
     status: message.status,
     message,
     rates: currentRates,

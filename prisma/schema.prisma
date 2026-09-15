@@ -28,6 +28,8 @@ model AdminUser {
   assignedContacts      Contact[]      @relation("ContactAssignee")
   notes                 ContactNote[]
   enteredRateEntries    RateEntry[]
+  createdTemplates      WhatsappTemplate[]
+  uploadedMedia         MediaAsset[]
 
   @@map("admin_users")
 }
@@ -47,6 +49,7 @@ model WhatsappAccount {
   conversations Conversation[]
   messages      Message[]
   consents      Consent[]
+  templates     WhatsappTemplate[]
 
   @@map("whatsapp_accounts")
 }
@@ -307,4 +310,86 @@ model RateRequest {
   @@index([source])
   @@index([createdAt])
   @@map("rate_requests")
+}
+
+// ───────────────────────── media library (Phase 3) ─────────────────────────
+
+// Pure key -> bytes storage, deliberately separate from MediaAsset's
+// metadata. Swapping to a real object-storage provider later means
+// writing a new provider that reads/writes this same key shape — no
+// change to MediaAsset, MediaService, routes or views. Chosen over local
+// disk because Render's filesystem is ephemeral and no external object
+// storage is configured yet; Postgres is the persistent store we have.
+model MediaBlob {
+  key       String   @id
+  data      Bytes
+  mimeType  String   @map("mime_type")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("media_blobs")
+}
+
+model MediaAsset {
+  id                  String    @id @default(cuid())
+  name                String
+  originalFilename    String    @map("original_filename")
+  storageKey          String    @unique @map("storage_key") // opaque, random — never a guessable path
+  mimeType            String    @map("mime_type")
+  mediaType           String    @map("media_type") // image | video | document
+  sizeBytes           Int       @map("size_bytes")
+  category            String    @default("Other")
+  width               Int?
+  height              Int?
+  metaMediaId         String?   @map("meta_media_id") // last used for a normal outbound message, if any
+  metaMediaUploadedAt DateTime? @map("meta_media_uploaded_at")
+  metaHeaderHandle    String?   @map("meta_header_handle") // resumable-upload handle for template header samples — NOT the same as meta_media_id
+  uploadedById        String?   @map("uploaded_by_id")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  uploadedBy AdminUser?         @relation(fields: [uploadedById], references: [id])
+  templates  WhatsappTemplate[]
+
+  @@index([mediaType])
+  @@index([category])
+  @@map("media_assets")
+}
+
+// ───────────────────────── templates (Phase 3) ─────────────────────────
+
+model WhatsappTemplate {
+  id                String    @id @default(cuid())
+  whatsappAccountId String    @map("whatsapp_account_id")
+  metaTemplateId    String?   @unique @map("meta_template_id")
+  name              String
+  category          String // marketing | utility | authentication
+  language          String // e.g. en_US, hi
+  // local_draft (never submitted) | pending_review | approved | rejected |
+  // paused | disabled | unknown (synced but Meta returned something new).
+  // Meta is ALWAYS authoritative for anything other than local_draft —
+  // nothing in this app may set status to approved by hand.
+  status            String    @default("local_draft")
+  qualityRating     String?   @map("quality_rating")
+  parameterFormat   String    @default("positional") @map("parameter_format")
+  headerType        String    @default("none") @map("header_type") // none | text | image | video | document
+  headerText        String?   @map("header_text")
+  headerMediaId     String?   @map("header_media_id")
+  bodyText          String    @map("body_text")
+  footerText        String?   @map("footer_text")
+  componentsJson    Json      @map("components_json") // exact Meta components array, submitted or as-synced
+  variablesJson     Json?     @map("variables_json") // our own {position, label, source} mapping — see templateService
+  rejectionReason   String?   @map("rejection_reason")
+  metaCreatedAt     DateTime? @map("meta_created_at")
+  lastSyncedAt      DateTime? @map("last_synced_at")
+  createdById       String?   @map("created_by_id")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  whatsappAccount WhatsappAccount @relation(fields: [whatsappAccountId], references: [id])
+  createdBy       AdminUser?      @relation(fields: [createdById], references: [id])
+  headerMedia     MediaAsset?     @relation(fields: [headerMediaId], references: [id])
+
+  @@unique([whatsappAccountId, name, language])
+  @@index([status])
+  @@map("whatsapp_templates")
 }

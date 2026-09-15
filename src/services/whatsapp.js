@@ -218,8 +218,132 @@ async function fetchMedia(mediaId) {
   return { mimeType: meta.mime_type, buffer: Buffer.from(await fileRes.arrayBuffer()) };
 }
 
+/* ───────────────────────── template management ───────────────────────── */
+// Meta's WhatsApp Business Management API for templates lives at the WABA
+// level (not per phone number) — https://graph.facebook.com/{v}/{waba-id}/message_templates.
+
+function isBusinessManagementConfigured() {
+  return Boolean(WA.token && WA.businessAccountId);
+}
+
+async function graphGet(pathname) {
+  const res = await fetch(`${GRAPH}/${pathname}`, {
+    headers: { Authorization: `Bearer ${WA.token}` },
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    logger.error('whatsapp: Graph API GET error', res.status, JSON.stringify(data));
+    const err = new Error(`WhatsApp Graph API ${res.status}`);
+    err.details = data;
+    throw err;
+  }
+  return data;
+}
+
+/** Creates a template on Meta. Returns Meta's response — a new template id and status (typically PENDING). */
+function createMetaTemplate(payload) {
+  if (!isBusinessManagementConfigured()) throw new Error('WhatsApp Business Account is not configured.');
+  return graphPostRaw(`${WA.businessAccountId}/message_templates`, payload);
+}
+
+/** Same as graphPost, but usable even when isConfigured() (phone-number send config) is false — template management only needs the token + WABA id. */
+async function graphPostRaw(pathname, body) {
+  const res = await fetch(`${GRAPH}/${pathname}`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${WA.token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    logger.error('whatsapp: Graph API error', res.status, JSON.stringify(data));
+    const err = new Error((data.error && data.error.message) || `WhatsApp Graph API ${res.status}`);
+    err.details = data;
+    throw err;
+  }
+  return data;
+}
+
+/** Lists all templates for the configured WABA, following pagination. */
+async function listMetaTemplates() {
+  if (!isBusinessManagementConfigured()) throw new Error('WhatsApp Business Account is not configured.');
+  const templates = [];
+  let next = `${WA.businessAccountId}/message_templates?limit=100`;
+  let guard = 0;
+  while (next && guard < 20) {
+    const page = await graphGet(next);
+    templates.push(...(page.data || []));
+    // Meta's paging.next is a full URL; we follow it via our own cursor
+    // param instead, so every request still goes through our GRAPH base.
+    const hasNext = page.paging && page.paging.next && page.paging.cursors && page.paging.cursors.after;
+    next = hasNext ? `${WA.businessAccountId}/message_templates?limit=100&after=${page.paging.cursors.after}` : null;
+    guard += 1;
+  }
+  return templates;
+}
+
+/** Fetches a single template's current state directly by its Meta template id. */
+function getMetaTemplate(metaTemplateId) {
+  if (!isBusinessManagementConfigured()) throw new Error('WhatsApp Business Account is not configured.');
+  return graphGet(String(metaTemplateId));
+}
+
+/** Uploads bytes to Meta's normal media endpoint, for use as a message's media_id. */
+async function uploadMedia(buffer, mimeType, filename) {
+  if (!isConfigured()) throw new Error('WhatsApp Cloud API is not configured.');
+  const form = new FormData();
+  form.append('messaging_product', 'whatsapp');
+  form.append('file', new Blob([buffer], { type: mimeType }), filename || 'file');
+  const res = await fetch(`${GRAPH}/${WA.phoneNumberId}/media`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${WA.token}` },
+    body: form,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    logger.error('whatsapp: media upload failed', res.status, JSON.stringify(data));
+    throw new Error((data.error && data.error.message) || `Media upload failed (${res.status})`);
+  }
+  return data; // { id: "..." }
+}
+
+/**
+ * The resumable-upload protocol Meta requires for template HEADER sample
+ * media — deliberately NOT the same as uploadMedia() above, which is for
+ * ordinary outbound message media. Two steps: start a session against the
+ * Meta App (not the WABA/phone number), then PATCH the bytes to get back
+ * a reusable `h` handle to reference in the template's header example.
+ */
+async function uploadTemplateHeaderSample(buffer, mimeType, filename) {
+  if (!WA.token || !WA.appId) {
+    throw new Error('WHATSAPP_APP_ID (and a valid token) is required to upload template header samples.');
+  }
+
+  const startRes = await fetch(
+    `${GRAPH}/${WA.appId}/uploads?file_length=${buffer.length}&file_type=${encodeURIComponent(mimeType)}&access_token=${encodeURIComponent(WA.token)}`,
+    { method: 'POST' }
+  );
+  const startData = await startRes.json().catch(() => ({}));
+  if (!startRes.ok || !startData.id) {
+    logger.error('whatsapp: upload session start failed', startRes.status, JSON.stringify(startData));
+    throw new Error((startData.error && startData.error.message) || 'Could not start Meta upload session.');
+  }
+
+  const uploadRes = await fetch(`${GRAPH}/${startData.id}`, {
+    method: 'POST',
+    headers: { Authorization: `OAuth ${WA.token}`, 'Content-Type': mimeType, 'file_offset': '0' },
+    body: buffer,
+  });
+  const uploadData = await uploadRes.json().catch(() => ({}));
+  if (!uploadRes.ok || !uploadData.h) {
+    logger.error('whatsapp: upload session finish failed', uploadRes.status, JSON.stringify(uploadData));
+    throw new Error((uploadData.error && uploadData.error.message) || 'Could not complete Meta upload.');
+  }
+  return uploadData.h; // the header handle, e.g. "4::aW1hZ2U..."
+}
+
 module.exports = {
   isConfigured,
+  isBusinessManagementConfigured,
   sendText,
   sendTemplate,
   markRead,
@@ -229,4 +353,9 @@ module.exports = {
   parseIncoming,
   parseStatuses,
   fetchMedia,
+  createMetaTemplate,
+  listMetaTemplates,
+  getMetaTemplate,
+  uploadMedia,
+  uploadTemplateHeaderSample,
 };

@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <%- include('partials/head') %>
+  <link rel="stylesheet" href="/css/whatsapp.css" />
+</head>
+<body>
+  <div class="admin-shell">
+    <%- include('partials/sidebar') %>
+    <main class="admin-main">
+      <div class="admin-header admin-header--row">
+        <div>
+          <p class="admin-breadcrumb"><a href="/admin/templates">Templates</a> / <%= template.name %></p>
+          <h1><%= template.name %></h1>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <% if (template.status === 'local_draft') { %>
+            <form method="post" action="/admin/templates/<%= template.id %>/submit">
+              <button type="submit" class="btn btn--gold" <%= !metaConfig.wabaConfigured || !metaConfig.tokenConfigured ? 'disabled title="WABA/token not configured"' : '' %>>Submit to Meta</button>
+            </form>
+          <% } %>
+          <% if (template.metaTemplateId) { %>
+            <form method="post" action="/admin/templates/<%= template.id %>/refresh">
+              <button type="submit" class="btn btn--ghost" <%= !metaConfig.syncAvailable ? 'disabled' : '' %>>Refresh Status</button>
+            </form>
+          <% } %>
+        </div>
+      </div>
+
+      <p><strong>This preview is visual only — it does not imply Meta approval.</strong></p>
+
+      <div class="admin-grid-2">
+        <div>
+          <div class="admin-card admin-section">
+            <h3>Details</h3>
+            <dl class="admin-deflist">
+              <dt>Meta Template ID</dt><dd><%= template.metaTemplateId || '— not submitted —' %></dd>
+              <dt>Status</dt><dd>
+                <span class="admin-badge <%= template.status === 'approved' ? 'admin-badge--ok' : template.status === 'rejected' || template.status === 'disabled' ? 'admin-badge--danger' : template.status === 'local_draft' ? 'admin-badge--muted' : 'admin-badge--warn' %>">
+                  <%= template.status === 'local_draft' ? 'LOCAL DRAFT (not sendable)' : template.status %>
+                </span>
+              </dd>
+              <dt>Category</dt><dd><%= template.category %></dd>
+              <dt>Language</dt><dd><%= template.language %></dd>
+              <dt>Quality Rating</dt><dd><%= template.qualityRating || '—' %></dd>
+              <dt>Last Synced</dt><dd><%= template.lastSyncedAt ? new Date(template.lastSyncedAt).toLocaleString('en-IN') : '—' %></dd>
+              <% if (template.rejectionReason) { %>
+                <dt>Rejection Reason</dt><dd><%= template.rejectionReason %></dd>
+              <% } %>
+            </dl>
+          </div>
+
+          <div class="admin-card admin-section">
+            <h3>Variables</h3>
+            <% if (!template.variablesJson || !template.variablesJson.length) { %>
+              <p class="admin-muted">No variables.</p>
+            <% } else { %>
+              <table class="admin-table">
+                <thead><tr><th>Position</th><th>Source</th><th>Example</th></tr></thead>
+                <tbody>
+                  <% template.variablesJson.forEach(function (v) { %>
+                    <tr><td>{{<%= v.position %>}}</td><td><%= v.source %></td><td><%= v.example %></td></tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            <% } %>
+          </div>
+
+          <% if (template.status === 'approved') { %>
+            <div class="admin-card admin-section">
+              <h3>Test Template</h3>
+              <p class="admin-muted">One-recipient test send only. Only approved templates can be tested.</p>
+              <form method="post" action="/admin/templates/<%= template.id %>/test-send" class="admin-form">
+                <div class="admin-form__row">
+                  <label>Test WhatsApp Number</label>
+                  <input type="text" name="testNumber" placeholder="e.g. 9876543210" required />
+                </div>
+                <% (template.variablesJson || []).forEach(function (v, i) { %>
+                  <div class="admin-form__row">
+                    <label>{{<%= v.position %>}} (<%= v.source %>) <span class="admin-muted">— leave blank to use example/live value</span></label>
+                    <input type="text" name="test_value_<%= i + 1 %>" placeholder="<%= v.example %>" />
+                  </div>
+                <% }); %>
+                <button type="submit" class="btn btn--gold">Send Test</button>
+              </form>
+            </div>
+          <% } %>
+
+          <div class="admin-card admin-section">
+            <h3>Raw Meta Components</h3>
+            <pre style="white-space:pre-wrap; font-size:12px; color:var(--text-dim);"><%= JSON.stringify(template.componentsJson, null, 2) %></pre>
+          </div>
+        </div>
+
+        <div>
+          <div class="admin-card admin-section">
+            <h3>Preview</h3>
+            <div style="background:var(--wa-bg-3, #182229); border-radius:12px; padding:20px;">
+              <div class="wa-bubble" style="max-width:100%;">
+                <% if (template.headerType === 'text' && template.headerText) { %>
+                  <div style="font-weight:600; margin-bottom:6px;"><%= template.headerText %></div>
+                <% } else if (template.headerType !== 'none') { %>
+                  <div style="background:var(--wa-bg-4,#222E35); border-radius:6px; padding:16px; text-align:center; margin-bottom:6px; font-size:12px; color:var(--wa-text-2,#8696A0);">
+                    [<%= template.headerType.toUpperCase() %> HEADER<%= template.headerMedia ? ': ' + template.headerMedia.name : '' %>]
+                  </div>
+                <% } %>
+                <div style="white-space:pre-wrap;"><%= template.bodyText %></div>
+                <% if (template.footerText) { %>
+                  <div style="color:var(--wa-text-2,#8696A0); font-size:12px; margin-top:8px;"><%= template.footerText %></div>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

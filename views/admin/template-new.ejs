@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <div class="admin-shell">
+    <%- include('partials/sidebar') %>
+    <main class="admin-main">
+      <div class="admin-header">
+        <p class="admin-breadcrumb"><a href="/admin/templates">Templates</a> / New</p>
+        <h1>New Template</h1>
+      </div>
+
+      <% if (error) { %><p class="admin-warning"><%= error %></p><% } %>
+
+      <form method="post" action="/admin/templates" class="admin-card admin-section admin-form">
+        <h3>Basics</h3>
+        <div class="admin-form__row">
+          <label>Name <span class="admin-muted">(lowercase, numbers, underscores only — this is what Meta uses)</span></label>
+          <input type="text" name="name" placeholder="today_gold_silver_rate" value="<%= formValues.name || '' %>" required />
+        </div>
+        <div class="admin-rate-grid">
+          <div class="admin-form__row">
+            <label>Category</label>
+            <select name="category">
+              <option value="marketing" <%= formValues.category === 'marketing' ? 'selected' : '' %>>Marketing</option>
+              <option value="utility" <%= formValues.category === 'utility' ? 'selected' : '' %>>Utility</option>
+              <option value="authentication" <%= formValues.category === 'authentication' ? 'selected' : '' %>>Authentication</option>
+            </select>
+          </div>
+          <div class="admin-form__row">
+            <label>Language</label>
+            <select name="language">
+              <option value="en_US" <%= formValues.language === 'en_US' ? 'selected' : '' %>>English (US)</option>
+              <option value="hi" <%= formValues.language === 'hi' ? 'selected' : '' %>>Hindi</option>
+            </select>
+          </div>
+        </div>
+
+        <h3>Header <span class="admin-muted">(optional)</span></h3>
+        <div class="admin-form__row">
+          <select name="headerType">
+            <option value="none">None</option>
+            <option value="text">Text</option>
+            <option value="image">Image</option>
+            <option value="video">Video</option>
+            <option value="document">Document</option>
+          </select>
+        </div>
+        <div class="admin-form__row">
+          <label>Header Text <span class="admin-muted">(if header type is Text)</span></label>
+          <input type="text" name="headerText" value="<%= formValues.headerText || '' %>" />
+        </div>
+        <div class="admin-form__row">
+          <label>Header Media <span class="admin-muted">(if header type is Image/Video/Document — from Media Library)</span></label>
+          <select name="headerMediaId">
+            <option value="">— None —</option>
+            <% mediaAssets.forEach(function (m) { %>
+              <option value="<%= m.id %>"><%= m.name %> (<%= m.mediaType %>)</option>
+            <% }); %>
+          </select>
+        </div>
+
+        <h3>Body</h3>
+        <div class="admin-form__row">
+          <label>Body Text <span class="admin-muted">(use {{1}}, {{2}}, … for variables)</span></label>
+          <textarea name="bodyText" rows="6" required><%= formValues.bodyText || '' %></textarea>
+        </div>
+
+        <h3>Variables <span class="admin-muted">(map each {{n}} used above; unused rows are ignored)</span></h3>
+        <% for (let i = 1; i <= 5; i++) { %>
+          <div class="admin-rate-grid" style="margin-bottom:10px;">
+            <div class="admin-form__row" style="margin-bottom:0;">
+              <label>{{<%= i %>}} Source</label>
+              <select name="var_source_<%= i %>">
+                <option value="">— Not used —</option>
+                <% variableSources.forEach(function (s) { %>
+                  <option value="<%= s.value %>"><%= s.label %></option>
+                <% }); %>
+              </select>
+            </div>
+            <div class="admin-form__row" style="margin-bottom:0;">
+              <label>Example Value <span class="admin-muted">(required by Meta)</span></label>
+              <input type="text" name="var_example_<%= i %>" placeholder="e.g. 15 September 2026" />
+            </div>
+          </div>
+        <% } %>
+
+        <h3>Footer <span class="admin-muted">(optional, max 60 characters, no variables)</span></h3>
+        <div class="admin-form__row">
+          <input type="text" name="footerText" maxlength="60" value="<%= formValues.footerText || '' %>" />
+        </div>
+
+        <h3>Buttons <span class="admin-muted">(optional, up to 3)</span></h3>
+        <% for (let i = 1; i <= 3; i++) { %>
+          <div class="admin-rate-grid" style="margin-bottom:10px;">
+            <div class="admin-form__row" style="margin-bottom:0;">
+              <label>Button <%= i %> Type</label>
+              <select name="button_type_<%= i %>">
+                <option value="">— None —</option>
+                <option value="QUICK_REPLY">Quick Reply</option>
+                <option value="URL">URL</option>
+                <option value="PHONE_NUMBER">Phone Number</option>
+              </select>
+            </div>
+            <div class="admin-form__row" style="margin-bottom:0;">
+              <label>Button Text</label>
+              <input type="text" name="button_text_<%= i %>" />
+            </div>
+            <div class="admin-form__row" style="margin-bottom:0;">
+              <label>URL / Phone Number <span class="admin-muted">(as applicable)</span></label>
+              <input type="text" name="button_url_<%= i %>" placeholder="https://…" />
+              <input type="text" name="button_phone_<%= i %>" placeholder="+91…" style="margin-top:6px;" />
+            </div>
+          </div>
+        <% } %>
+
+        <button type="submit" class="btn btn--gold">Save as Local Draft</button>
+        <p class="admin-muted" style="margin-top:10px;">Saving creates a LOCAL DRAFT only — nothing is sent to Meta until you submit it from the template's detail page.</p>
+      </form>
+    </main>
+  </div>
+</body>
+</html>

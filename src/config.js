@@ -16,6 +16,10 @@ const config = {
     token: process.env.WHATSAPP_TOKEN || '',
     phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID || '',
     businessAccountId: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID || '',
+    // Meta App ID (not the same as the WABA/phone number) — needed only
+    // for the resumable-upload protocol that produces template header
+    // sample handles. Everything else works without it.
+    appId: process.env.WHATSAPP_APP_ID || '',
     verifyToken: process.env.WHATSAPP_VERIFY_TOKEN || 'bansal-jewellers-verify',
     appSecret: process.env.WHATSAPP_APP_SECRET || '',
     notifyTo: process.env.WHATSAPP_NOTIFY_TO || '',

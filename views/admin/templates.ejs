@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <div class="admin-shell">
+    <%- include('partials/sidebar') %>
+    <main class="admin-main">
+      <div class="admin-header admin-header--row">
+        <div>
+          <h1>Templates</h1>
+          <p class="admin-header__sub"><%= result.total %> total</p>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <form method="post" action="/admin/templates/sync">
+            <button type="submit" class="btn btn--ghost" <%= !metaConfig.syncAvailable ? 'disabled title="WABA/token not configured"' : '' %>>Sync from Meta</button>
+          </form>
+          <a href="/admin/templates/new" class="btn btn--gold">New Template</a>
+        </div>
+      </div>
+
+      <div class="admin-card admin-section">
+        <h3>Meta Configuration</h3>
+        <div class="admin-config-grid">
+          <div>WABA <span class="admin-badge <%= metaConfig.wabaConfigured ? 'admin-badge--ok' : 'admin-badge--danger' %>"><%= metaConfig.wabaConfigured ? 'Configured' : 'Missing' %></span></div>
+          <div>Phone Number ID <span class="admin-badge <%= metaConfig.phoneNumberConfigured ? 'admin-badge--ok' : 'admin-badge--danger' %>"><%= metaConfig.phoneNumberConfigured ? 'Configured' : 'Missing' %></span></div>
+          <div>Access Token <span class="admin-badge <%= metaConfig.tokenConfigured ? 'admin-badge--ok' : 'admin-badge--danger' %>"><%= metaConfig.tokenConfigured ? 'Configured' : 'Missing' %></span></div>
+          <div>Template Sync <span class="admin-badge <%= metaConfig.syncAvailable ? 'admin-badge--ok' : 'admin-badge--danger' %>"><%= metaConfig.syncAvailable ? 'Available' : 'Unavailable' %></span></div>
+        </div>
+      </div>
+
+      <form class="admin-filters" method="get" action="/admin/templates">
+        <input type="text" name="search" placeholder="Search by name" value="<%= filters.search %>" />
+        <select name="status">
+          <option value="">Any status</option>
+          <% ['local_draft','pending_review','approved','rejected','paused','disabled','unknown'].forEach(function(s){ %>
+            <option value="<%= s %>" <%= filters.status === s ? 'selected' : '' %>><%= s %></option>
+          <% }); %>
+        </select>
+        <select name="category">
+          <option value="">Any category</option>
+          <% ['marketing','utility','authentication'].forEach(function(c){ %>
+            <option value="<%= c %>" <%= filters.category === c ? 'selected' : '' %>><%= c %></option>
+          <% }); %>
+        </select>
+        <select name="language">
+          <option value="">Any language</option>
+          <option value="en_US" <%= filters.language === 'en_US' ? 'selected' : '' %>>English (US)</option>
+          <option value="hi" <%= filters.language === 'hi' ? 'selected' : '' %>>Hindi</option>
+        </select>
+        <button type="submit" class="btn btn--ghost">Filter</button>
+      </form>
+
+      <% if (!result.templates.length) { %>
+        <div class="admin-card">
+          <div class="admin-empty">
+            <h2>No templates yet</h2>
+            <p>Create a local draft, or sync from Meta if your WhatsApp Business Account is already configured.</p>
+          </div>
+        </div>
+      <% } else { %>
+        <div class="admin-card admin-card--flush">
+          <table class="admin-table">
+            <thead><tr><th>Name</th><th>Language</th><th>Category</th><th>Header</th><th>Status</th><th>Last Synced</th><th></th></tr></thead>
+            <tbody>
+              <% result.templates.forEach(function (t) { %>
+                <tr>
+                  <td><%= t.name %></td>
+                  <td><%= t.language %></td>
+                  <td><%= t.category %></td>
+                  <td><%= t.headerType !== 'none' ? t.headerType : '—' %></td>
+                  <td>
+                    <span class="admin-badge <%= t.status === 'approved' ? 'admin-badge--ok' : t.status === 'rejected' || t.status === 'disabled' ? 'admin-badge--danger' : t.status === 'local_draft' ? 'admin-badge--muted' : 'admin-badge--warn' %>">
+                      <%= t.status %>
+                    </span>
+                  </td>
+                  <td><%= t.lastSyncedAt ? new Date(t.lastSyncedAt).toLocaleString('en-IN') : '—' %></td>
+                  <td><a class="admin-table__link" href="/admin/templates/<%= t.id %>">View</a></td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+        <% if (result.totalPages > 1) { %>
+          <div class="admin-pagination">
+            <% for (let p = 1; p <= result.totalPages; p++) { %>
+              <a class="admin-pagination__item <%= p === result.page ? 'is-active' : '' %>" href="?<%= new URLSearchParams({ ...filters, page: p }).toString() %>"><%= p %></a>
+            <% } %>
+          </div>
+        <% } %>
+      <% } %>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <div class="admin-shell">
+    <%- include('partials/sidebar') %>
+    <main class="admin-main">
+      <div class="admin-header admin-header--row">
+        <div>
+          <h1>Media Library</h1>
+          <p class="admin-header__sub"><%= result.total %> assets</p>
+        </div>
+        <button type="button" class="btn btn--gold" id="open-upload">Upload</button>
+      </div>
+
+      <form class="admin-filters" method="get" action="/admin/media">
+        <input type="text" name="search" placeholder="Search by name" value="<%= filters.search %>" />
+        <select name="mediaType">
+          <option value="">All types</option>
+          <option value="image" <%= filters.mediaType === 'image' ? 'selected' : '' %>>Images</option>
+          <option value="video" <%= filters.mediaType === 'video' ? 'selected' : '' %>>Videos</option>
+          <option value="document" <%= filters.mediaType === 'document' ? 'selected' : '' %>>Documents</option>
+        </select>
+        <select name="category">
+          <option value="">All categories</option>
+          <% categories.forEach(function (c) { %>
+            <option value="<%= c %>" <%= filters.category === c ? 'selected' : '' %>><%= c %></option>
+          <% }); %>
+        </select>
+        <button type="submit" class="btn btn--ghost">Filter</button>
+      </form>
+
+      <% if (!result.assets.length) { %>
+        <div class="admin-card">
+          <div class="admin-empty">
+            <h2>No media yet</h2>
+            <p>Upload product photos, festival creatives, certificates and other reusable assets here.</p>
+          </div>
+        </div>
+      <% } else { %>
+        <div class="admin-media-grid">
+          <% result.assets.forEach(function (m) { %>
+            <div class="admin-media-card">
+              <a href="/admin/media/<%= m.id %>/file" target="_blank" rel="noopener" class="admin-media-card__preview">
+                <% if (m.mediaType === 'image') { %>
+                  <img src="/admin/media/<%= m.id %>/file" alt="<%= m.name %>" loading="lazy" />
+                <% } else if (m.mediaType === 'video') { %>
+                  <video src="/admin/media/<%= m.id %>/file" muted></video>
+                <% } else { %>
+                  <div class="admin-media-card__doc">PDF</div>
+                <% } %>
+              </a>
+              <div class="admin-media-card__body">
+                <div class="admin-media-card__name"><%= m.name %></div>
+                <div class="admin-muted"><%= m.category %> &bull; <%= (m.sizeBytes / 1024).toFixed(0) %> KB</div>
+                <form method="post" action="/admin/media/<%= m.id %>/update" class="admin-form admin-form--inline" style="margin-top:8px;">
+                  <input type="text" name="name" value="<%= m.name %>" style="flex:1;" />
+                  <select name="category">
+                    <% categories.forEach(function (c) { %>
+                      <option value="<%= c %>" <%= m.category === c ? 'selected' : '' %>><%= c %></option>
+                    <% }); %>
+                  </select>
+                  <button type="submit" class="btn btn--ghost" style="padding:8px 10px;font-size:11px;">Save</button>
+                </form>
+                <form method="post" action="/admin/media/<%= m.id %>/delete" class="admin-media-card__delete" onsubmit="return confirm('Delete this asset?');">
+                  <button type="submit">Delete</button>
+                </form>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+        <% if (result.totalPages > 1) { %>
+          <div class="admin-pagination">
+            <% for (let p = 1; p <= result.totalPages; p++) { %>
+              <a class="admin-pagination__item <%= p === result.page ? 'is-active' : '' %>" href="?<%= new URLSearchParams({ ...filters, page: p }).toString() %>"><%= p %></a>
+            <% } %>
+          </div>
+        <% } %>
+      <% } %>
+    </main>
+  </div>
+
+  <dialog id="upload-dialog" class="admin-dialog">
+    <form method="post" action="/admin/media/upload" enctype="multipart/form-data">
+      <h2>Upload Media</h2>
+      <label>File <span class="admin-muted">(JPEG/PNG/WEBP up to 5MB, MP4 up to 16MB, PDF up to 10MB)</span></label>
+      <input type="file" name="file" accept=".jpg,.jpeg,.png,.webp,.mp4,.pdf" required />
+      <label>Name <span class="admin-muted">(optional)</span></label>
+      <input type="text" name="name" />
+      <label>Category</label>
+      <select name="category">
+        <% categories.forEach(function (c) { %><option value="<%= c %>"><%= c %></option><% }); %>
+      </select>
+      <div class="admin-dialog__actions">
+        <button type="button" class="btn btn--ghost" id="cancel-upload">Cancel</button>
+        <button type="submit" class="btn btn--gold">Upload</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="/js/admin-media.js"></script>
+</body>
+</html>
