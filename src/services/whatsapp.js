@@ -5,7 +5,12 @@ const config = require('../config');
 const logger = require('../utils/logger');
 
 const WA = config.whatsapp;
-const GRAPH = `https://graph.facebook.com/${WA.graphVersion}`;
+// Computed fresh on every call (not cached at require-time) so a Settings
+// change to the Graph API version takes effect without a restart — see
+// metaConfigService, which mutates WA's properties in place.
+function graphBase() {
+  return `https://graph.facebook.com/${WA.graphVersion}`;
+}
 
 /* ───────────────────────── outbound ───────────────────────── */
 
@@ -19,7 +24,7 @@ async function graphPost(pathname, body) {
     return { skipped: true };
   }
 
-  const res = await fetch(`${GRAPH}/${pathname}`, {
+  const res = await fetch(`${graphBase()}/${pathname}`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${WA.token}`,
@@ -206,7 +211,7 @@ function parseStatuses(payload) {
 async function fetchMedia(mediaId) {
   if (!isConfigured()) throw new Error('WhatsApp Cloud API is not configured.');
 
-  const metaRes = await fetch(`${GRAPH}/${mediaId}`, {
+  const metaRes = await fetch(`${graphBase()}/${mediaId}`, {
     headers: { Authorization: `Bearer ${WA.token}` },
   });
   if (!metaRes.ok) throw new Error(`Failed to resolve media (${metaRes.status})`);
@@ -227,7 +232,7 @@ function isBusinessManagementConfigured() {
 }
 
 async function graphGet(pathname) {
-  const res = await fetch(`${GRAPH}/${pathname}`, {
+  const res = await fetch(`${graphBase()}/${pathname}`, {
     headers: { Authorization: `Bearer ${WA.token}` },
   });
   const data = await res.json().catch(() => ({}));
@@ -240,6 +245,37 @@ async function graphGet(pathname) {
   return data;
 }
 
+/* ───────────────────────── connection / discovery ───────────────────────── */
+// Read-only, harmless calls used by the Settings "Test Connection" flow and
+// phone-number discovery — never mutate anything on Meta's side.
+
+/** Verifies the WABA itself is reachable with the current token. */
+function getWabaInfo() {
+  if (!WA.token || !WA.businessAccountId) throw new Error('WhatsApp Business Account ID / token not configured.');
+  return graphGet(`${WA.businessAccountId}?fields=id,name,timezone_id`);
+}
+
+/** Verifies the configured phone number is reachable and returns exactly what Meta supplies — nothing fabricated. */
+function getPhoneNumberInfo(phoneNumberId) {
+  const id = phoneNumberId || WA.phoneNumberId;
+  if (!WA.token || !id) throw new Error('Phone Number ID / token not configured.');
+  return graphGet(`${id}?fields=id,display_phone_number,verified_name,quality_rating,platform_type,code_verification_status`);
+}
+
+/** Lists every WhatsApp number available under the configured WABA (for phone-number discovery). */
+async function listPhoneNumbers() {
+  if (!WA.token || !WA.businessAccountId) throw new Error('WhatsApp Business Account ID / token not configured.');
+  const page = await graphGet(`${WA.businessAccountId}/phone_numbers?fields=id,display_phone_number,verified_name,quality_rating,platform_type,code_verification_status`);
+  return page.data || [];
+}
+
+/** Inspects the current token's granted scopes via Meta's debug_token endpoint. */
+async function debugToken() {
+  if (!WA.token) throw new Error('No access token configured.');
+  const data = await graphGet(`debug_token?input_token=${encodeURIComponent(WA.token)}&access_token=${encodeURIComponent(WA.token)}`);
+  return data.data || null;
+}
+
 /** Creates a template on Meta. Returns Meta's response — a new template id and status (typically PENDING). */
 function createMetaTemplate(payload) {
   if (!isBusinessManagementConfigured()) throw new Error('WhatsApp Business Account is not configured.');
@@ -248,7 +284,7 @@ function createMetaTemplate(payload) {
 
 /** Same as graphPost, but usable even when isConfigured() (phone-number send config) is false — template management only needs the token + WABA id. */
 async function graphPostRaw(pathname, body) {
-  const res = await fetch(`${GRAPH}/${pathname}`, {
+  const res = await fetch(`${graphBase()}/${pathname}`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${WA.token}`, 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -293,7 +329,7 @@ async function uploadMedia(buffer, mimeType, filename) {
   const form = new FormData();
   form.append('messaging_product', 'whatsapp');
   form.append('file', new Blob([buffer], { type: mimeType }), filename || 'file');
-  const res = await fetch(`${GRAPH}/${WA.phoneNumberId}/media`, {
+  const res = await fetch(`${graphBase()}/${WA.phoneNumberId}/media`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${WA.token}` },
     body: form,
@@ -319,7 +355,7 @@ async function uploadTemplateHeaderSample(buffer, mimeType, filename) {
   }
 
   const startRes = await fetch(
-    `${GRAPH}/${WA.appId}/uploads?file_length=${buffer.length}&file_type=${encodeURIComponent(mimeType)}&access_token=${encodeURIComponent(WA.token)}`,
+    `${graphBase()}/${WA.appId}/uploads?file_length=${buffer.length}&file_type=${encodeURIComponent(mimeType)}&access_token=${encodeURIComponent(WA.token)}`,
     { method: 'POST' }
   );
   const startData = await startRes.json().catch(() => ({}));
@@ -328,7 +364,7 @@ async function uploadTemplateHeaderSample(buffer, mimeType, filename) {
     throw new Error((startData.error && startData.error.message) || 'Could not start Meta upload session.');
   }
 
-  const uploadRes = await fetch(`${GRAPH}/${startData.id}`, {
+  const uploadRes = await fetch(`${graphBase()}/${startData.id}`, {
     method: 'POST',
     headers: { Authorization: `OAuth ${WA.token}`, 'Content-Type': mimeType, 'file_offset': '0' },
     body: buffer,
@@ -358,4 +394,8 @@ module.exports = {
   getMetaTemplate,
   uploadMedia,
   uploadTemplateHeaderSample,
+  getWabaInfo,
+  getPhoneNumberInfo,
+  listPhoneNumbers,
+  debugToken,
 };

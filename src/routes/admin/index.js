@@ -9,6 +9,7 @@ const whatsappRouter = require('./whatsapp');
 const ratesRouter = require('./rates');
 const templatesRouter = require('./templates');
 const mediaRouter = require('./media');
+const settingsRouter = require('./settings');
 const NAV = require('./nav');
 
 const router = express.Router();
@@ -38,10 +39,11 @@ router.use(contactsRouter); // /admin/contacts + /admin/api/contacts/*
 router.use(ratesRouter); // /admin/rates + /admin/rates/update
 router.use(templatesRouter); // /admin/templates + /admin/templates/*
 router.use(mediaRouter); // /admin/media + /admin/api/media
+router.use(settingsRouter); // /admin/settings + /admin/settings/*
 
 router.get(
   '/campaigns',
-  renderStub('campaigns', 'Campaigns', 'Campaign builder, audience targeting, queue and analytics — Phase 4.')
+  renderStub('campaigns', 'Campaigns', 'Campaign builder, audience targeting, queue and analytics — after the Meta messaging foundation is verified.')
 );
 router.get(
   '/automations',
@@ -60,13 +62,5 @@ router.get(
   renderStub('reports', 'Reports', 'Messaging, campaign, template and agent analytics — Phase 7.')
 );
 router.get('/logs', renderStub('logs', 'Logs', 'Webhook, API, campaign and automation logs — Phase 7.'));
-router.get(
-  '/settings',
-  renderStub(
-    'settings',
-    'Settings',
-    'Meta app, WABA, phone numbers, AI and consent configuration — added as each phase needs it.'
-  )
-);
 
 module.exports = router;

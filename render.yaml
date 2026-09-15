@@ -20,6 +20,8 @@ services:
           property: connectionString
       - key: SESSION_SECRET
         generateValue: true
+      - key: SETTINGS_ENCRYPTION_KEY
+        generateValue: true
       - key: ADMIN_EMAIL
         sync: false
       - key: ADMIN_PASSWORD
@@ -32,7 +34,13 @@ services:
         sync: false
       - key: WHATSAPP_BUSINESS_ACCOUNT_ID
         sync: false
+      - key: WHATSAPP_APP_ID
+        sync: false
       - key: WHATSAPP_APP_SECRET
         sync: false
       - key: WHATSAPP_NOTIFY_TO
+        sync: false
+      - key: WHATSAPP_RATE_TEMPLATE_NAME
+        sync: false
+      - key: WHATSAPP_RATE_TEMPLATE_LANG
         sync: false

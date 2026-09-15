@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <div class="admin-shell">
+    <%- include('partials/sidebar') %>
+    <main class="admin-main">
+      <div class="admin-header">
+        <h1>Settings — WhatsApp / Meta</h1>
+      </div>
+
+      <% if (typeof saveError !== 'undefined' && saveError) { %>
+        <p class="admin-warning"><%= saveError %></p>
+      <% } %>
+      <% if (!encryptionAvailable) { %>
+        <p class="admin-warning">SETTINGS_ENCRYPTION_KEY is not set on the server. Access Token / App Secret cannot be saved until it is — everything else below can still be configured.</p>
+      <% } %>
+
+      <!-- ─────────────────── Connection Health ─────────────────── -->
+      <div class="admin-card admin-section">
+        <h3>Connection Health</h3>
+        <div class="admin-config-grid">
+          <div>Meta API <span class="admin-badge <%= health.metaApi.status === 'connected' ? 'admin-badge--ok' : health.metaApi.status === 'error' ? 'admin-badge--danger' : 'admin-badge--muted' %>"><%= health.metaApi.status === 'connected' ? 'Connected' : health.metaApi.status === 'error' ? 'Error' : 'Unknown' %></span></div>
+          <div>WABA <span class="admin-badge <%= health.waba.status === 'connected' ? 'admin-badge--ok' : health.waba.status === 'missing' ? 'admin-badge--danger' : 'admin-badge--warn' %>"><%= health.waba.status.replace('_', ' ') %></span></div>
+          <div>Phone Number <span class="admin-badge <%= health.phoneNumber.status === 'connected' ? 'admin-badge--ok' : health.phoneNumber.status === 'missing' ? 'admin-badge--danger' : 'admin-badge--warn' %>"><%= health.phoneNumber.status.replace('_', ' ') %></span></div>
+          <div>Webhook <span class="admin-badge <%= health.webhook.status === 'receiving' ? 'admin-badge--ok' : health.webhook.status === 'no_events_yet' ? 'admin-badge--muted' : 'admin-badge--warn' %>"><%= health.webhook.status.replace(/_/g, ' ') %></span></div>
+          <div>Media API <span class="admin-badge <%= health.media.status === 'verified' ? 'admin-badge--ok' : 'admin-badge--muted' %>"><%= health.media.status === 'verified' ? 'Verified' : 'Not Yet Verified' %></span></div>
+        </div>
+        <p class="admin-muted" style="margin-top:14px;">
+          Templates: <%= health.templates.approved %> approved &bull; <%= health.templates.pendingReview %> pending &bull; <%= health.templates.rejected %> rejected &bull; <%= health.templates.localDraft %> local draft
+        </p>
+        <p class="admin-muted">
+          Last Meta test: <%= health.metaApi.lastTestedAt ? new Date(health.metaApi.lastTestedAt).toLocaleString('en-IN') : 'never' %>
+          &bull; Last webhook: <%= health.webhook.lastReceivedAt ? new Date(health.webhook.lastReceivedAt).toLocaleString('en-IN') : 'never' %>
+        </p>
+        <% if (health.webhook.lastError) { %>
+          <p class="admin-warning">Last webhook error (<%= new Date(health.webhook.lastError.at).toLocaleString('en-IN') %>): <%= health.webhook.lastError.message %></p>
+        <% } %>
+      </div>
+
+      <!-- ─────────────────── Meta Configuration ─────────────────── -->
+      <div class="admin-card admin-section">
+        <h3>Meta Configuration</h3>
+        <form method="post" action="/admin/settings/meta" class="admin-form">
+          <div class="admin-rate-grid">
+            <div class="admin-form__row">
+              <label>Meta App ID <span class="admin-badge admin-badge--muted"><%= settings.appIdSource %></span></label>
+              <input type="text" name="appId" value="<%= settings.appId %>" />
+            </div>
+            <div class="admin-form__row">
+              <label>WhatsApp Business Account ID (WABA) <span class="admin-badge admin-badge--muted"><%= settings.wabaIdSource %></span></label>
+              <input type="text" name="wabaId" value="<%= settings.wabaId %>" />
+            </div>
+            <div class="admin-form__row">
+              <label>Business Portfolio ID <span class="admin-muted">(optional)</span></label>
+              <input type="text" name="businessPortfolioId" value="<%= settings.businessPortfolioId %>" />
+            </div>
+            <div class="admin-form__row">
+              <label>Phone Number ID <span class="admin-badge admin-badge--muted"><%= settings.phoneNumberIdSource %></span></label>
+              <input type="text" name="phoneNumberId" value="<%= settings.phoneNumberId %>" />
+            </div>
+            <div class="admin-form__row">
+              <label>Graph API Version</label>
+              <input type="text" name="graphVersion" value="<%= settings.graphVersion %>" />
+            </div>
+            <div class="admin-form__row">
+              <label>Webhook Verify Token</label>
+              <input type="text" name="verifyToken" value="<%= settings.verifyToken %>" />
+            </div>
+            <div class="admin-form__row">
+              <label>Access Token <%= settings.tokenConfigured ? '(' + settings.tokenMasked + ' — ' + settings.tokenSource + ')' : '(not set)' %></label>
+              <input type="password" name="token" placeholder="Paste a new token to replace it — leave blank to keep the current one" autocomplete="off" <%= !encryptionAvailable ? 'disabled' : '' %> />
+            </div>
+            <div class="admin-form__row">
+              <label>App Secret <%= settings.appSecretConfigured ? '(' + settings.appSecretMasked + ' — ' + settings.appSecretSource + ')' : '(not set)' %> <span class="admin-muted">— enables webhook signature verification</span></label>
+              <input type="password" name="appSecret" placeholder="Leave blank to keep the current one" autocomplete="off" <%= !encryptionAvailable ? 'disabled' : '' %> />
+            </div>
+            <div class="admin-form__row">
+              <label>Rate Template Name <span class="admin-muted">(website Gold Rate send)</span></label>
+              <input type="text" name="rateTemplateName" value="<%= settings.rateTemplateName %>" placeholder="today_gold_silver_rate" />
+            </div>
+            <div class="admin-form__row">
+              <label>Rate Template Language</label>
+              <input type="text" name="rateTemplateLang" value="<%= settings.rateTemplateLang %>" />
+            </div>
+            <div class="admin-form__row">
+              <label>Embedded Signup Configuration ID <span class="admin-muted">(optional, for future coexistence setup)</span></label>
+              <input type="text" name="embeddedSignupConfigId" value="<%= settings.embeddedSignupConfigId %>" />
+            </div>
+          </div>
+          <button type="submit" class="btn btn--gold">Save Meta Configuration</button>
+        </form>
+      </div>
+
+      <!-- ─────────────────── Test Connection ─────────────────── -->
+      <div class="admin-card admin-section">
+        <div class="admin-section__head"><h3>Test Meta Connection</h3></div>
+        <form method="post" action="/admin/settings/test-connection">
+          <button type="submit" class="btn btn--ghost">Test Connection</button>
+        </form>
+        <% if (typeof connectionResult !== 'undefined') { %>
+          <div class="admin-note" style="margin-top:14px;">
+            <p><strong>Status: <%= connectionResult.status === 'connected' ? 'Connected ✅' : 'Error ❌' %></strong></p>
+            <% if (connectionResult.waba) { %>
+              <p>WABA: <%= connectionResult.waba.name || connectionResult.waba.id %> (id: <%= connectionResult.waba.id %>)</p>
+            <% } %>
+            <% if (connectionResult.phone) { %>
+              <p>Phone: <%= connectionResult.phone.display_phone_number || '—' %><br/>
+                 Phone Number ID: <%= connectionResult.phone.id %><br/>
+                 Display Name: <%= connectionResult.phone.verified_name || '—' %><br/>
+                 <% if (connectionResult.phone.quality_rating) { %>Quality: <%= connectionResult.phone.quality_rating %><br/><% } %>
+              </p>
+            <% } %>
+            <% if (connectionResult.error) { %>
+              <p class="admin-warning">
+                <%= connectionResult.error.message %>
+                <% if (connectionResult.error.code) { %> (code <%= connectionResult.error.code %><%= connectionResult.error.subcode ? '/' + connectionResult.error.subcode : '' %>)<% } %>
+              </p>
+            <% } %>
+          </div>
+        <% } %>
+
+        <form method="post" action="/admin/settings/check-permissions" style="margin-top:14px;">
+          <button type="submit" class="btn btn--ghost">Check Token Permissions</button>
+        </form>
+        <% if (typeof permissionResult !== 'undefined') { %>
+          <div class="admin-note" style="margin-top:10px;">
+            <% if (permissionResult.status === 'available') { %>
+              <p class="admin-badge admin-badge--ok">Available</p><p>Required permissions are present.</p>
+            <% } else if (permissionResult.status === 'missing') { %>
+              <p class="admin-badge admin-badge--danger">Missing</p><p>Missing: <%= permissionResult.missing.join(', ') %></p>
+            <% } else { %>
+              <p class="admin-badge admin-badge--warn">Unable to Verify</p>
+              <% if (permissionResult.error) { %><p class="admin-muted"><%= permissionResult.error.message %></p><% } %>
+            <% } %>
+          </div>
+        <% } %>
+      </div>
+
+      <!-- ─────────────────── Phone Numbers ─────────────────── -->
+      <div class="admin-card admin-section">
+        <h3>WhatsApp Numbers</h3>
+        <table class="admin-table">
+          <thead><tr><th>Label</th><th>Phone Number ID</th><th>Display Number</th><th>Display Name</th><th>Quality</th><th>Default</th><th>Last Test</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><%= account.label %></td>
+              <td><%= account.phoneNumberId %></td>
+              <td><%= account.displayPhoneNumber || '—' %></td>
+              <td><%= account.displayName || '—' %></td>
+              <td><%= account.qualityRating || '—' %></td>
+              <td><span class="admin-badge admin-badge--ok">Default</span></td>
+              <td><%= account.lastConnectionTestAt ? new Date(account.lastConnectionTestAt).toLocaleString('en-IN') : '—' %></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="admin-muted" style="margin-top:10px;">Multi-number support is architected (each WhatsApp number is its own account row) — adding a second number later needs no schema change.</p>
+
+        <form method="post" action="/admin/settings/discover-phone-numbers" style="margin-top:14px;">
+          <button type="submit" class="btn btn--ghost">Discover Numbers from Meta</button>
+        </form>
+        <% if (typeof discoverError !== 'undefined') { %><p class="admin-warning"><%= discoverError %></p><% } %>
+        <% if (typeof discoveredNumbers !== 'undefined' && discoveredNumbers.length) { %>
+          <table class="admin-table" style="margin-top:10px;">
+            <thead><tr><th>Phone Number ID</th><th>Number</th><th>Verified Name</th><th>Quality</th><th></th></tr></thead>
+            <tbody>
+              <% discoveredNumbers.forEach(function (n) { %>
+                <tr>
+                  <td><%= n.id %></td><td><%= n.display_phone_number %></td><td><%= n.verified_name %></td><td><%= n.quality_rating || '—' %></td>
+                  <td>
+                    <form method="post" action="/admin/settings/select-phone-number">
+                      <input type="hidden" name="phoneNumberId" value="<%= n.id %>" />
+                      <button type="submit" class="btn btn--ghost" style="padding:6px 10px;font-size:11px;">Use This Number</button>
+                    </form>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        <% } %>
+      </div>
+
+      <!-- ─────────────────── Webhook ─────────────────── -->
+      <div class="admin-card admin-section">
+        <h3>Webhook</h3>
+        <dl class="admin-deflist">
+          <dt>Callback URL</dt><dd><code><%= webhookUrl %></code></dd>
+          <dt>Verify Token</dt><dd><span class="admin-badge <%= verifyTokenConfigured ? 'admin-badge--ok' : 'admin-badge--danger' %>"><%= verifyTokenConfigured ? 'Configured' : 'Missing' %></span></dd>
+          <dt>Signature Verification (X-Hub-Signature-256)</dt><dd><span class="admin-badge <%= signatureVerificationEnabled ? 'admin-badge--ok' : 'admin-badge--warn' %>"><%= signatureVerificationEnabled ? 'Enabled' : 'Disabled (no App Secret set)' %></span></dd>
+          <dt>Last Webhook Received</dt><dd><%= health.webhook.lastReceivedAt ? new Date(health.webhook.lastReceivedAt).toLocaleString('en-IN') : '—' %></dd>
+          <dt>Last Successful Incoming Message</dt><dd><%= health.webhook.lastSuccessfulMessageAt ? new Date(health.webhook.lastSuccessfulMessageAt).toLocaleString('en-IN') : '—' %></dd>
+        </dl>
+        <p class="admin-muted">Enter this exact Callback URL and Verify Token in Meta App Dashboard → WhatsApp → Configuration. Meta does not expose an API to confirm webhook subscription status, so this cannot be auto-verified — the "Last Webhook Received" field above is the real proof once Meta starts sending events.</p>
+      </div>
+
+      <!-- ─────────────────── Coexistence / Embedded Signup ─────────────────── -->
+      <div class="admin-card admin-section">
+        <h3>Coexistence / Embedded Signup</h3>
+        <p>Status: <span class="admin-badge admin-badge--muted"><%= coexistence.status.replace(/_/g, ' ') %></span></p>
+        <p class="admin-muted">Unofficial QR-based WhatsApp Web sessions or browser automation are never used here — only Meta's official Embedded Signup, once eligible.</p>
+        <dl class="admin-deflist">
+          <dt>App ID</dt><dd><span class="admin-badge <%= coexistence.embeddedSignup.appIdConfigured ? 'admin-badge--ok' : 'admin-badge--danger' %>"><%= coexistence.embeddedSignup.appIdConfigured ? 'Configured' : 'Missing' %></span></dd>
+          <dt>Facebook Login Configuration ID</dt><dd><span class="admin-badge <%= coexistence.embeddedSignup.configIdConfigured ? 'admin-badge--ok' : 'admin-badge--danger' %>"><%= coexistence.embeddedSignup.configIdConfigured ? 'Configured' : 'Missing' %></span></dd>
+        </dl>
+        <% if (coexistence.embeddedSignup.missingPrerequisites.length) { %>
+          <p class="admin-warning">Missing prerequisites: <%= coexistence.embeddedSignup.missingPrerequisites.join('; ') %>.</p>
+        <% } %>
+      </div>
+
+      <!-- ─────────────────── App Review Readiness ─────────────────── -->
+      <div class="admin-card admin-section">
+        <h3>Meta App Review Readiness</h3>
+        <table class="admin-table">
+          <thead><tr><th>Item</th><th>State</th><th>Note</th></tr></thead>
+          <tbody>
+            <% checklist.forEach(function (item) { %>
+              <tr>
+                <td><%= item.label %></td>
+                <td>
+                  <span class="admin-badge <%= item.state === 'verified' ? 'admin-badge--ok' : item.state === 'needs_action' ? 'admin-badge--danger' : 'admin-badge--warn' %>">
+                    <%= item.state === 'verified' ? 'Verified' : item.state === 'needs_action' ? 'Needs Action' : item.state === 'manual' ? 'Manual' : 'Unable to Verify' %>
+                  </span>
+                </td>
+                <td class="admin-muted"><%= item.note || '' %></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

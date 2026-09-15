@@ -37,14 +37,21 @@ model AdminUser {
 // ───────────────────── whatsapp accounts (multi-number ready) ─────────────────────
 
 model WhatsappAccount {
-  id                 String   @id @default(cuid())
-  label              String
-  phoneNumberId      String   @unique @map("phone_number_id")
-  wabaId             String?  @map("waba_id")
-  displayPhoneNumber String?  @map("display_phone_number")
-  isDefault          Boolean  @default(true) @map("is_default")
-  isActive           Boolean  @default(true) @map("is_active")
-  createdAt          DateTime @default(now()) @map("created_at")
+  id                   String    @id @default(cuid())
+  label                String
+  phoneNumberId        String    @unique @map("phone_number_id")
+  wabaId               String?   @map("waba_id")
+  businessPortfolioId  String?   @map("business_portfolio_id")
+  displayPhoneNumber   String?   @map("display_phone_number")
+  displayName          String?   @map("display_name") // Meta's verified_name, once discovered
+  qualityRating        String?   @map("quality_rating")
+  isDefault            Boolean   @default(true) @map("is_default")
+  isActive             Boolean   @default(true) @map("is_active")
+  lastConnectionTestAt DateTime? @map("last_connection_test_at")
+  lastConnectionStatus String?   @map("last_connection_status") // connected | error | unknown
+  lastConnectionError  String?   @map("last_connection_error")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
 
   conversations Conversation[]
   messages      Message[]
@@ -392,4 +399,34 @@ model WhatsappTemplate {
   @@unique([whatsappAccountId, name, language])
   @@index([status])
   @@map("whatsapp_templates")
+}
+
+// ───────────────────── meta settings (Phase 4) ─────────────────────
+
+// A single row (id is always the literal "default"). Secrets are stored
+// AES-256-GCM encrypted, keyed by SETTINGS_ENCRYPTION_KEY — an env var
+// that is deliberately never written to this table. Plain (non-secret)
+// fields here take precedence over their env-var equivalents; see
+// metaConfigService for the one resolver every service goes through.
+model MetaSetting {
+  id                     String    @id @default("default")
+  appId                  String?   @map("app_id")
+  wabaId                 String?   @map("waba_id")
+  businessPortfolioId    String?   @map("business_portfolio_id")
+  phoneNumberId          String?   @map("phone_number_id")
+  graphVersion           String?   @map("graph_version")
+  verifyToken            String?   @map("verify_token")
+  encryptedToken         String?   @map("encrypted_token")
+  encryptedAppSecret     String?   @map("encrypted_app_secret")
+  rateTemplateName       String?   @map("rate_template_name")
+  rateTemplateLang       String?   @map("rate_template_lang")
+  embeddedSignupConfigId String?   @map("embedded_signup_config_id")
+  lastVerifiedAt         DateTime? @map("last_verified_at")
+  lastVerifyStatus       String?   @map("last_verify_status") // connected | error | unknown
+  lastVerifyError        String?   @map("last_verify_error")
+  updatedById            String?   @map("updated_by_id")
+  createdAt              DateTime  @default(now()) @map("created_at")
+  updatedAt              DateTime  @updatedAt @map("updated_at")
+
+  @@map("meta_settings")
 }

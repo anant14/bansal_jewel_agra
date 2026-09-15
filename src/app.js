@@ -15,8 +15,20 @@ const ratesRouter = require('./routes/rates');
 const whatsappRouter = require('./routes/whatsapp');
 const adminRouter = require('./routes/admin');
 const adminSession = require('./middleware/session');
+const metaConfigService = require('./services/metaConfigService');
 
 const app = express();
+
+// Hydrate the live Meta config from Settings (if any admin-saved values
+// exist) as soon as the DB is reachable — otherwise a redeploy would
+// silently fall back to env vars until someone re-saves Settings. Fired
+// once at boot, then re-checked periodically as a safety net; every save
+// in the Settings UI also triggers an immediate refresh (see
+// metaConfigService.saveSettings), so normal changes need no restart.
+metaConfigService.refreshConfigCache().catch((err) => logger.warn('metaConfig: initial refresh failed', err.message));
+setInterval(() => {
+  metaConfigService.refreshConfigCache().catch((err) => logger.warn('metaConfig: periodic refresh failed', err.message));
+}, 5 * 60 * 1000).unref();
 
 app.set('trust proxy', 1);
 app.set('view engine', 'ejs');
