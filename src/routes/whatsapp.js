@@ -135,8 +135,8 @@ async function handleInboundMessage(parsed, account) {
 
   if (!config.whatsapp.autoReply || !whatsapp.isConfigured()) return;
 
+  await safeMarkRead(message.whatsappMessageId);
   try {
-    await whatsapp.markRead(message.whatsappMessageId);
     const brand = content.brand;
     const reply =
       `Namaste 🙏 Thank you for messaging *${brand.name}*.\n\n` +
@@ -150,10 +150,22 @@ async function handleInboundMessage(parsed, account) {
   }
 }
 
+// Marking a message read is a courtesy call to Meta, not part of the
+// delivery contract — if it fails (bad token, transient API error) the
+// actual reply must still be attempted and recorded. Never let this
+// gate or abort the send path.
+async function safeMarkRead(whatsappMessageId) {
+  try {
+    await whatsapp.markRead(whatsappMessageId);
+  } catch (err) {
+    logger.warn('whatsapp: markRead failed (non-fatal)', err.message);
+  }
+}
+
 /** Returns true if the rate bot fully handled this message (send attempted + logged either way). */
 async function handleRateIntent({ contact, account, intent, message }) {
+  await safeMarkRead(message.whatsappMessageId);
   try {
-    await whatsapp.markRead(message.whatsappMessageId);
     const deliveryResult = await rateDelivery.sendRateMessage({
       contact,
       whatsappAccount: account,
