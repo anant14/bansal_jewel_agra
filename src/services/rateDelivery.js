@@ -85,7 +85,7 @@ async function sendRateMessage({ contact, whatsappAccount, mode, requestedType =
   }
 
   // mode === 'website' — business-initiated, needs an approved template.
-  if (!config.whatsapp.isConfigured() || !config.whatsapp.rateTemplateName) {
+  if (!whatsapp.isConfigured() || !config.whatsapp.rateTemplateName) {
     const { message } = await conversationService.recordOutboundMessage({
       contact, whatsappAccount, text, actorId,
       sendResult: { skipped: true, error: 'WhatsApp rate template is not configured yet.' },

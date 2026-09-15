@@ -104,7 +104,8 @@ router.post('/whatsapp-request', limiter, async (req, res) => {
     });
   } catch (err) {
     logger.error('rates: whatsapp-request failed', err.message);
-    res.status(500).json({ ok: false, error: 'Something went wrong. Please try again or contact us directly.' });
+    // TEMPORARY diagnostic while verifying Phase 2 end-to-end.
+    res.status(500).json({ ok: false, error: 'Something went wrong. Please try again or contact us directly.', debug: err.message, stack: err.stack });
   }
 });
 
