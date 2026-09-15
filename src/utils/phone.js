@@ -14,6 +14,13 @@ function normalizePhone(input) {
   if (digits.length === 11 && digits.startsWith('0')) {
     return '91' + digits.slice(1);
   }
+  // A bare 10-digit number (no country code at all, e.g. "9876543210")
+  // is the same customer as "+91 9876543210" / "919876543210" — without
+  // this, those three common input styles would each create a separate
+  // contact for the same person.
+  if (digits.length === 10) {
+    return '91' + digits;
+  }
   return digits;
 }
 
