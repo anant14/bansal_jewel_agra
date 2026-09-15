@@ -10,40 +10,6 @@ const NAV = require('./nav');
 
 const router = express.Router();
 
-// TEMPORARY: purges Phase 2 test data (contacts + their conversations/
-// messages/rate requests/consents/audit log entries), and the fabricated
-// test rate entries for the two specific dates this testing session
-// touched — the RateType config rows are left untouched, and no other
-// date is affected. Removed right after use.
-router.post('/api/dev/purge-phase2-test-data', async (req, res, next) => {
-  try {
-    const prisma = require('../../db/prisma');
-    const contacts = await prisma.contact.findMany({
-      where: { OR: [{ whatsappNumber: { contains: '9377' } }, { whatsappNumber: { contains: '88888' } }] },
-    });
-    for (const c of contacts) {
-      await prisma.rateRequest.deleteMany({ where: { contactId: c.id } });
-      const convos = await prisma.conversation.findMany({ where: { contactId: c.id } });
-      for (const convo of convos) {
-        await prisma.messageEvent.deleteMany({ where: { message: { conversationId: convo.id } } });
-        await prisma.message.deleteMany({ where: { conversationId: convo.id } });
-      }
-      await prisma.conversation.deleteMany({ where: { contactId: c.id } });
-      await prisma.contactTag.deleteMany({ where: { contactId: c.id } });
-      await prisma.contactNote.deleteMany({ where: { contactId: c.id } });
-      await prisma.consent.deleteMany({ where: { contactId: c.id } });
-      await prisma.auditLog.deleteMany({ where: { contactId: c.id } });
-      await prisma.contact.delete({ where: { id: c.id } });
-    }
-    const deletedEntries = await prisma.rateEntry.deleteMany({
-      where: { rateDate: { in: [new Date('2026-09-14T00:00:00.000Z'), new Date('2026-09-15T00:00:00.000Z')] } },
-    });
-    res.json({ purgedContacts: contacts.map((c) => c.whatsappNumber), deletedRateEntries: deletedEntries.count });
-  } catch (err) {
-    next(err);
-  }
-});
-
 const NAV_ACTIVE = 'contacts';
 
 /* ───────────────────────────── pages ───────────────────────────────── */
