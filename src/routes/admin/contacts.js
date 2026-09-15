@@ -10,57 +10,6 @@ const NAV = require('./nav');
 
 const router = express.Router();
 
-// TEMPORARY: Phase 3 test-data cleanup. Deletes the test-only template
-// ("festival_greeting_test"), the media asset it referenced (now
-// unreferenced), test contacts from this session, and today's/yesterday's
-// fabricated rate entries. Keeps the legitimate today_gold_silver_rate
-// local draft and all RateType/Tag config. Removed right after use.
-router.post('/api/dev/purge-phase3-test-data', async (req, res, next) => {
-  try {
-    const prisma = require('../../db/prisma');
-
-    const testTemplate = await prisma.whatsappTemplate.findFirst({ where: { name: 'festival_greeting_test' } });
-    if (testTemplate) await prisma.whatsappTemplate.delete({ where: { id: testTemplate.id } });
-
-    const orphanMedia = await prisma.mediaAsset.findMany({ where: { name: 'Test Product Photo' } });
-    for (const m of orphanMedia) {
-      await prisma.mediaBlob.deleteMany({ where: { key: m.storageKey } });
-      await prisma.mediaAsset.delete({ where: { id: m.id } });
-    }
-
-    const contacts = await prisma.contact.findMany({
-      where: { OR: [{ whatsappNumber: { contains: '9377755' } }, { whatsappNumber: { contains: '937775500' } }] },
-    });
-    for (const c of contacts) {
-      await prisma.rateRequest.deleteMany({ where: { contactId: c.id } });
-      const convos = await prisma.conversation.findMany({ where: { contactId: c.id } });
-      for (const convo of convos) {
-        await prisma.messageEvent.deleteMany({ where: { message: { conversationId: convo.id } } });
-        await prisma.message.deleteMany({ where: { conversationId: convo.id } });
-      }
-      await prisma.conversation.deleteMany({ where: { contactId: c.id } });
-      await prisma.contactTag.deleteMany({ where: { contactId: c.id } });
-      await prisma.contactNote.deleteMany({ where: { contactId: c.id } });
-      await prisma.consent.deleteMany({ where: { contactId: c.id } });
-      await prisma.auditLog.deleteMany({ where: { contactId: c.id } });
-      await prisma.contact.delete({ where: { id: c.id } });
-    }
-
-    const deletedEntries = await prisma.rateEntry.deleteMany({
-      where: { rateDate: { in: [new Date('2026-09-14T00:00:00.000Z'), new Date('2026-09-15T00:00:00.000Z')] } },
-    });
-
-    res.json({
-      deletedTestTemplate: Boolean(testTemplate),
-      deletedMedia: orphanMedia.length,
-      purgedContacts: contacts.map((c) => c.whatsappNumber),
-      deletedRateEntries: deletedEntries.count,
-    });
-  } catch (err) {
-    next(err);
-  }
-});
-
 const NAV_ACTIVE = 'contacts';
 
 /* ───────────────────────────── pages ───────────────────────────────── */
