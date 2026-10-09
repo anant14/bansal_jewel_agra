@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const https = require('https');
 const logger = require('../utils/logger');
 
 const DATA_DIR = path.join(__dirname, '..', '..', 'data');
@@ -87,12 +88,89 @@ function reviewSummary() {
   return { average: (sum / list.length).toFixed(1), count: list.length };
 }
 
+function normalizeGoogleReview(review) {
+  if (!review || !review.author_name) return null;
+  return {
+    author: review.author_name,
+    location: 'Google Business Profile',
+    rating: Math.min(5, Math.max(1, Math.round(Number(review.rating) || 5))),
+    source: 'Verified Google review',
+    comment: review.text || 'Verified customer review from Google.',
+    date: review.relative_time_description || 'Google review',
+  };
+}
+
+function fetchGoogleReviews() {
+  const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+  const placeId = process.env.GOOGLE_PLACE_ID;
+
+  if (!apiKey || !placeId) return null;
+
+  const endpoint = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(placeId)}&fields=name,rating,user_ratings_total,reviews&key=${encodeURIComponent(apiKey)}`;
+
+  return new Promise((resolve) => {
+    const req = https.get(endpoint, (res) => {
+      let raw = '';
+      res.on('data', (chunk) => {
+        raw += chunk;
+      });
+      res.on('end', () => {
+        try {
+          const payload = JSON.parse(raw);
+          if (!payload || payload.status !== 'OK' || !payload.result) {
+            resolve(null);
+            return;
+          }
+          const result = payload.result;
+          const reviews = Array.isArray(result.reviews) ? result.reviews.map(normalizeGoogleReview).filter(Boolean) : [];
+          const summary = {
+            average: Number(result.rating || 0).toFixed(1),
+            count: Number(result.user_ratings_total || reviews.length || 0),
+          };
+          resolve({ summary, items: reviews });
+        } catch (err) {
+          logger.warn('content: Google reviews fetch failed', err.message);
+          resolve(null);
+        }
+      });
+    });
+
+    req.on('error', () => resolve(null));
+    req.setTimeout(10000, () => {
+      req.destroy();
+      resolve(null);
+    });
+  });
+}
+
+async function getReviewsData() {
+  const live = await fetchGoogleReviews();
+  if (live && live.summary && Number(live.summary.average) > 0) {
+    return {
+      summary: live.summary,
+      items: live.items && live.items.length ? live.items : store.reviews,
+    };
+  }
+
+  const configured = store.content.reviews || {};
+  const local = reviewSummary();
+  const fallback = {
+    average: Number(configured.ratingValue || local.average).toFixed(1),
+    count: Number(String(configured.ratingCount || '').match(/\d[\d,]*/)?.[0]?.replace(/,/g, '') || local.count),
+  };
+  return {
+    summary: fallback,
+    items: store.reviews,
+  };
+}
+
 /**
  * Everything the home page template needs, in one object.
  * Keeping this here means routes/templates never touch the raw files.
  */
-function homeViewModel() {
+async function homeViewModel() {
   const c = store.content;
+  const live = await getReviewsData();
   return {
     brand: store.brand,
     nav: c.nav,
@@ -108,7 +186,9 @@ function homeViewModel() {
     wholesale: c.wholesale,
     reviews: {
       ...c.reviews,
-      items: store.reviews,
+      ratingValue: live.summary.average,
+      ratingCount: `${live.summary.count} Verified Reviews`,
+      items: live.items,
     },
     showroom: c.showroom,
     footer: c.footer,
@@ -136,5 +216,7 @@ module.exports = {
   productsByCategory,
   findProduct,
   reviewSummary,
+  fetchGoogleReviews,
+  getReviewsData,
   homeViewModel,
 };

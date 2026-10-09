@@ -29,8 +29,9 @@
             </div>
             <div class="stars" aria-label="<%= r.rating %> out of 5">
               <% for (var i = 0; i < r.rating; i++) { %>&#9733;<% } %>
+              <span class="review__rating"><%= r.rating %>.0 / 5</span>
             </div>
-            <p class="review__purchase"><%= r.purchase %></p>
+            <p class="review__purchase"><%= r.source || 'Featured customer review' %></p>
             <p class="review__body">&ldquo;<%= r.comment %>&rdquo;</p>
             <p class="review__date"><%= r.date %></p>
           </article>

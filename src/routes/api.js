@@ -26,8 +26,9 @@ router.get('/products/:sku', (req, res) => {
   res.json(product);
 });
 
-router.get('/reviews', (req, res) => {
-  res.json({ summary: content.reviewSummary(), items: content.reviews });
+router.get('/reviews', async (req, res) => {
+  const reviews = await content.getReviewsData();
+  res.json(reviews);
 });
 
 /* ─────────────────────── enquiry intake ────────────────────── */

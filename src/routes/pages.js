@@ -6,8 +6,8 @@ const content = require('../services/content');
 
 const router = express.Router();
 
-router.get('/', (req, res) => {
-  const model = content.homeViewModel();
+router.get('/', async (req, res) => {
+  const model = await content.homeViewModel();
   res.render('index', {
     ...model,
     page: { title: `${model.brand.name} | ${model.brand.since} — Gold, Diamond & Polki, Agra` },

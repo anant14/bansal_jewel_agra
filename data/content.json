@@ -51,9 +51,9 @@
   "marquee": [
     "200 Years of Heritage",
     "9 Generations of Trust",
-    "100% BIS 916 Hallmarked",
+    "100% BIS 750 Hallmarked",
     "IGI Certified Diamonds",
-    "Agra Foundry",
+    "Agra Workshop",
     "Surat Atelier",
     "200km Retail Network",
     "Bespoke Bridal Jadau"
@@ -74,9 +74,9 @@
       {
         "number": "02",
         "title": "Own Manufacturing",
-        "subtitle": "Agra Foundry + Surat Diamond Atelier",
-        "description": "Our Agra foundry crafts intricate polki & temple jewellery; our Surat atelier cuts and sets high-clarity diamonds. Direct-from-source, zero middlemen.",
-        "badge": "In-House Foundries"
+        "subtitle": "Agra Workshop + Surat Diamond Atelier",
+        "description": "Our Agra workshop crafts intricate polki & temple jewellery; our Surat atelier cuts and sets high-clarity diamonds. Direct-from-source, zero middlemen.",
+        "badge": "In-House Workshops"
       },
       {
         "number": "03",
@@ -117,7 +117,7 @@
     "steps": [
       { "number": "01", "title": "Share Your Vision", "detail": "Sketch, reference or just an idea — we listen first." },
       { "number": "02", "title": "3D CAD Preview", "detail": "See your piece rendered in detail before a single gram is cast." },
-      { "number": "03", "title": "Master Karigari", "detail": "Handcrafted at our Agra foundry or Surat atelier, on schedule." }
+      { "number": "03", "title": "Master Karigari", "detail": "Handcrafted at our Agra workshop or Surat atelier, on schedule." }
     ],
     "cta": { "label": "Start a Bespoke Enquiry", "message": "Hello Bansal Jewellers, I want to discuss a custom jewellery design." }
   },
@@ -125,7 +125,7 @@
   "heritage": {
     "eyebrow": "Since 1820 • Agra",
     "heading": "One unbroken promise.",
-    "intro": "For over two centuries, the Bansal family has shaped gold, cut diamonds and set uncut polki in the shadow of the Taj Mahal. Today, the ninth generation carries the same torch — from our foundry in Agra to our atelier in Surat.",
+    "intro": "For over two centuries, the Bansal family has shaped gold, cut diamonds and set uncut polki in the shadow of the Taj Mahal. Today, the ninth generation carries the same torch — from our workshop in Agra to our atelier in Surat.",
     "timelineLabel": "Chapter by chapter ◈ 1820 — 2026",
     "milestones": [
       {
@@ -159,7 +159,7 @@
     "cities": ["Agra", "Mathura", "Aligarh", "Firozabad", "Hathras", "Etah", "Bharatpur", "Gwalior"],
     "benefits": [
       "100% BIS hallmarked stock with HUID",
-      "Direct foundry pricing, zero middlemen",
+      "Direct workshop pricing, zero middlemen",
       "Express 24–48h insured dispatch",
       "Custom batch manufacturing at Agra & Surat"
     ],
@@ -170,7 +170,7 @@
   "reviews": {
     "eyebrow": "Google Business Reviews",
     "ratingValue": "4.9",
-    "ratingCount": "480+ Verified Reviews",
+    "ratingCount": "74 Verified Reviews",
     "intro": "Two centuries of relationships, reflected in the words of our bridal families and retail partners on Google.",
     "cta": { "label": "Read all reviews on Google" }
   },
@@ -201,7 +201,7 @@
     "trust": [
       "100% BIS 916 Hallmarked Gold with HUID",
       "IGI / GIA / SGL Certified Diamonds",
-      "Manufacturing Units: Heritage Gold & Polki Foundry, Agra (UP) • Diamond Atelier, Surat (Gujarat)"
+      "Manufacturing Units: Heritage Gold & Polki Workshop, Agra (UP) • Diamond Atelier, Surat (Gujarat)"
     ],
     "legalLine": "Bansal Jewellers, Agra ◈ Since 1820",
     "legalLinks": [
