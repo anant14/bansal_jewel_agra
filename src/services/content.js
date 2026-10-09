@@ -93,6 +93,8 @@ function reviewSummary() {
 const GOOGLE_REVIEWS_TTL_MS = 6 * 60 * 60 * 1000;
 const GOOGLE_REVIEWS_RETRY_MS = 10 * 60 * 1000;
 let googleCache = { data: null, expires: 0 };
+// Last outcome, surfaced on /healthz so a misconfigured key is visible without log access.
+let googleStatus = 'not_checked';
 
 function normalizeGoogleReview(review) {
   const author = review && review.authorAttribution && review.authorAttribution.displayName;
@@ -130,6 +132,7 @@ function requestGoogleReviews(apiKey, placeId) {
           if (res.statusCode !== 200 || !payload) {
             const msg = payload && payload.error ? payload.error.message : `HTTP ${res.statusCode}`;
             logger.warn('content: Google reviews request failed', msg);
+            googleStatus = `error: ${msg}`;
             resolve(null);
             return;
           }
@@ -138,9 +141,11 @@ function requestGoogleReviews(apiKey, placeId) {
             average: Number(payload.rating || 0).toFixed(1),
             count: Number(payload.userRatingCount || reviews.length || 0),
           };
+          googleStatus = 'ok';
           resolve({ summary, items: reviews });
         } catch (err) {
           logger.warn('content: Google reviews fetch failed', err.message);
+          googleStatus = `error: ${err.message}`;
           resolve(null);
         }
       });
@@ -148,9 +153,11 @@ function requestGoogleReviews(apiKey, placeId) {
 
     req.on('error', (err) => {
       logger.warn('content: Google reviews fetch failed', err.message);
+      googleStatus = `error: ${err.message}`;
       resolve(null);
     });
     req.setTimeout(10000, () => {
+      googleStatus = 'error: request timed out';
       req.destroy();
       resolve(null);
     });
@@ -160,7 +167,10 @@ function requestGoogleReviews(apiKey, placeId) {
 async function fetchGoogleReviews() {
   const apiKey = process.env.GOOGLE_PLACES_API_KEY;
   const placeId = process.env.GOOGLE_PLACE_ID;
-  if (!apiKey || !placeId) return null;
+  if (!apiKey || !placeId) {
+    googleStatus = `not_configured: missing ${[!apiKey && 'GOOGLE_PLACES_API_KEY', !placeId && 'GOOGLE_PLACE_ID'].filter(Boolean).join(' and ')}`;
+    return null;
+  }
 
   const now = Date.now();
   if (now < googleCache.expires) return googleCache.data;
@@ -249,5 +259,8 @@ module.exports = {
   reviewSummary,
   fetchGoogleReviews,
   getReviewsData,
+  get googleReviewsStatus() {
+    return googleStatus;
+  },
   homeViewModel,
 };

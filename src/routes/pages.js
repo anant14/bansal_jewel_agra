@@ -17,7 +17,13 @@ router.get('/', async (req, res) => {
 
 // Simple health endpoint (handy for uptime checks / the reverse proxy).
 router.get('/healthz', (req, res) => {
-  res.json({ ok: true, service: 'bansal-jewellers', env: config.env, uptime: process.uptime() });
+  res.json({
+    ok: true,
+    service: 'bansal-jewellers',
+    env: config.env,
+    uptime: process.uptime(),
+    googleReviews: content.googleReviewsStatus,
+  });
 });
 
 /* ─────────────────── legal / Meta compliance pages ─────────────────── */
