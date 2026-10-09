@@ -20,6 +20,14 @@ async function main() {
 
   const existing = await prisma.adminUser.findUnique({ where: { email } });
   if (existing) {
+    // Opt-in only: set ADMIN_RESET_PASSWORD=true for one deploy to change a
+    // forgotten password, then remove it again.
+    if (process.env.ADMIN_RESET_PASSWORD === 'true') {
+      const passwordHash = await bcrypt.hash(password, 12);
+      await prisma.adminUser.update({ where: { email }, data: { passwordHash, isActive: true } });
+      console.log(`seed: reset password for admin user ${email} (remove ADMIN_RESET_PASSWORD now).`);
+      return;
+    }
     console.log(`seed: admin user ${email} already exists — leaving it untouched.`);
     return;
   }
