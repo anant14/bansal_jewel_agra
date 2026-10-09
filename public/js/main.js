@@ -390,6 +390,48 @@
   }
 
   /* ---------------------------------------------------------------- */
+  /*  live gold rate board — refreshes every minute while visible     */
+  /* ---------------------------------------------------------------- */
+  var rateBoard = $('#rate-board');
+  var rateUpdated = $('#rate-updated');
+
+  function rateTime(iso) {
+    var date = new Date(iso);
+    var opts = { timeZone: 'Asia/Kolkata' };
+    var sameDay = date.toLocaleDateString('en-IN', opts) === new Date().toLocaleDateString('en-IN', opts);
+    var time = date.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: 'numeric', minute: '2-digit' });
+    return sameDay
+      ? 'updated ' + time
+      : 'as of ' + date.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short' }) + ', ' + time;
+  }
+
+  function refreshRates() {
+    if (document.hidden) return;
+    fetch('/api/rates/gold', { headers: { Accept: 'application/json' } })
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (!data || !data.ok) return;
+        data.rates.forEach(function (r) {
+          var el = rateBoard.querySelector('[data-rate-code="' + r.code + '"]');
+          if (!el) return;
+          var text = '₹' + Number(r.value).toLocaleString('en-IN');
+          if (el.textContent !== text) {
+            el.textContent = text;
+            el.classList.add('is-updated');
+            setTimeout(function () { el.classList.remove('is-updated'); }, 1500);
+          }
+        });
+        if (rateUpdated) rateUpdated.textContent = rateTime(data.updatedAt);
+      })
+      .catch(function () { /* keep showing the last rates */ });
+  }
+
+  if (rateBoard && rateUpdated && rateUpdated.getAttribute('data-source') === 'live' && window.fetch) {
+    setInterval(refreshRates, 60 * 1000);
+    document.addEventListener('visibilitychange', refreshRates);
+  }
+
+  /* ---------------------------------------------------------------- */
   /*  whatsapp float                                                  */
   /* ---------------------------------------------------------------- */
   var waFloat = $('#wafloat');

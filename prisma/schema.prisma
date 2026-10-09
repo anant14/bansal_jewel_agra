@@ -356,6 +356,8 @@ model MediaAsset {
 
   uploadedBy AdminUser?         @relation(fields: [uploadedById], references: [id])
   templates  WhatsappTemplate[]
+  sitePhotos SitePhoto[]
+  products   Product[]
 
   @@index([mediaType])
   @@index([category])
@@ -429,4 +431,61 @@ model MetaSetting {
   updatedAt              DateTime  @updatedAt @map("updated_at")
 
   @@map("meta_settings")
+}
+
+// ───────────────────────── website content (Phase 5) ─────────────────────────
+
+// Admin-uploaded photos for the homepage. While a placement has no active
+// rows, the site keeps showing the defaults from data/content.json.
+model SitePhoto {
+  id           String   @id @default(cuid())
+  placement    String // hero | showroom
+  mediaAssetId String   @map("media_asset_id")
+  title        String // alt text; also the hero slide title
+  label        String? // hero only: short label in the slide pill, e.g. "Polki"
+  tagline      String? // hero only: line shown after the label
+  wide         Boolean  @default(false) // showroom only: photo spans two columns
+  displayOrder Int      @default(0) @map("display_order")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  mediaAsset MediaAsset @relation(fields: [mediaAssetId], references: [id])
+
+  @@index([placement])
+  @@map("site_photos")
+}
+
+// The website catalogue. Imported once from data/products.json (see
+// catalogService.ensureImported), then managed from /admin/catalogue.
+model Product {
+  id           String   @id @default(cuid())
+  sku          String   @unique
+  category     String // matches an id in content.json catalogue.categories (gold | diamond | polki)
+  name         String
+  specs        String   @default("")
+  craft        String   @default("")
+  description  String   @default("")
+  mediaAssetId String?  @map("media_asset_id") // uploaded photo; takes precedence over imageUrl
+  imageUrl     String?  @map("image_url") // external photo (the original stock catalogue)
+  displayOrder Int      @default(0) @map("display_order")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  mediaAsset MediaAsset? @relation(fields: [mediaAssetId], references: [id])
+
+  @@index([isActive, displayOrder])
+  @@map("products")
+}
+
+// Small key/value store for website settings (e.g. the live gold rate
+// configuration), so they can be changed from the admin without a deploy.
+model SiteSetting {
+  key         String   @id
+  value       Json
+  updatedById String?  @map("updated_by_id")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("site_settings")
 }

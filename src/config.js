@@ -10,6 +10,9 @@ const config = {
   port,
   host: process.env.HOST || '0.0.0.0',
   baseUrl: process.env.BASE_URL || `http://localhost:${port}`,
+  // Without a database the public site still runs from data/*.json; the
+  // admin-managed photos, catalogue and rate settings simply aren't used.
+  hasDatabase: Boolean(process.env.DATABASE_URL),
 
   whatsapp: {
     graphVersion: process.env.WHATSAPP_GRAPH_VERSION || 'v21.0',

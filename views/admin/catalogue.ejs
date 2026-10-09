@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <div class="admin-shell">
+    <%- include('partials/sidebar') %>
+    <main class="admin-main">
+      <div class="admin-header admin-header--row">
+        <div>
+          <h1>Catalogue</h1>
+          <p class="admin-header__sub">
+            <%= products.filter(function (p) { return p.isActive; }).length %> of <%= products.length %> products shown on the website
+          </p>
+        </div>
+        <a class="btn btn--gold" href="/admin/catalogue/new">Add Product</a>
+      </div>
+
+      <% if (notice.saved) { %><p class="admin-success"><%= notice.saved %> Changes appear on the website within a minute.</p><% } %>
+      <% if (notice.error) { %><p class="admin-warning"><%= notice.error %></p><% } %>
+
+      <% if (!products.length) { %>
+        <div class="admin-card">
+          <div class="admin-empty">
+            <h2>No products yet</h2>
+            <p>Add your first product with a photo — it will appear in the website catalogue.</p>
+          </div>
+        </div>
+      <% } else { %>
+        <div class="admin-card admin-card--flush">
+          <table class="admin-table">
+            <thead>
+              <tr><th>Photo</th><th>Product</th><th>Category</th><th>Position</th><th>Website</th><th></th></tr>
+            </thead>
+            <tbody>
+              <% products.forEach(function (p) { %>
+                <% const cat = categories.find(function (c) { return c.id === p.category; }); %>
+                <tr class="<%= p.isActive ? '' : 'is-hidden' %>">
+                  <td>
+                    <% const img = imageOf(p); %>
+                    <% if (img) { %><img class="admin-thumb" src="<%= img %>" alt="" loading="lazy" /><% } %>
+                  </td>
+                  <td>
+                    <a class="admin-table__link" href="/admin/catalogue/<%= p.id %>"><%= p.name %></a>
+                    <div class="admin-muted"><%= p.sku %><%= p.mediaAssetId ? '' : ' • stock photo' %></div>
+                  </td>
+                  <td><%= cat ? cat.label : p.category %></td>
+                  <td><%= p.displayOrder %></td>
+                  <td>
+                    <form method="post" action="/admin/catalogue/<%= p.id %>/visibility">
+                      <input type="hidden" name="show" value="<%= p.isActive ? '0' : '1' %>" />
+                      <% if (p.isActive) { %>
+                        <span class="admin-badge admin-badge--ok">Shown</span>
+                        <button type="submit" class="admin-linkbtn">Hide</button>
+                      <% } else { %>
+                        <span class="admin-badge admin-badge--muted">Hidden</span>
+                        <button type="submit" class="admin-linkbtn">Show</button>
+                      <% } %>
+                    </form>
+                  </td>
+                  <td style="white-space:nowrap;">
+                    <a class="btn btn--ghost btn--small" href="/admin/catalogue/<%= p.id %>">Edit</a>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      <% } %>
+    </main>
+  </div>
+</body>
+</html>

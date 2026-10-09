@@ -2,6 +2,8 @@
 
 module.exports = [
   { key: 'whatsapp', label: 'WhatsApp', href: '/admin/whatsapp' },
+  { key: 'website-photos', label: 'Website Photos', href: '/admin/website-photos' },
+  { key: 'catalogue', label: 'Catalogue', href: '/admin/catalogue' },
   { key: 'contacts', label: 'Contacts', href: '/admin/contacts' },
   { key: 'templates', label: 'Templates', href: '/admin/templates' },
   { key: 'media', label: 'Media Library', href: '/admin/media' },

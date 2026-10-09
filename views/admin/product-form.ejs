@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <div class="admin-shell">
+    <%- include('partials/sidebar') %>
+    <main class="admin-main">
+      <div class="admin-header">
+        <p class="admin-breadcrumb"><a href="/admin/catalogue">Catalogue</a> /</p>
+        <h1><%= product ? product.name : 'Add Product' %></h1>
+      </div>
+
+      <% if (error) { %><p class="admin-warning"><%= error %><%= photoLost ? ' Please choose the photo again.' : '' %></p><% } %>
+
+      <div class="admin-card admin-section">
+        <form method="post" action="/admin/catalogue/<%= product ? product.id : 'new' %>" enctype="multipart/form-data" class="admin-form">
+          <div class="admin-product-form">
+            <div>
+              <div class="admin-form__row">
+                <label>Photo <span class="admin-muted">(JPEG, PNG or WEBP — square or portrait works best; resized automatically)</span></label>
+                <% if (imageUrl) { %>
+                  <img class="admin-product-form__img" src="<%= imageUrl %>" alt="<%= product.name %>" />
+                <% } %>
+                <input type="file" name="photo" accept="image/jpeg,image/png,image/webp" <%= product ? '' : 'required' %> />
+                <% if (product) { %><p class="admin-muted" style="margin:6px 0 0;">Leave empty to keep the current photo.</p><% } %>
+              </div>
+            </div>
+
+            <div>
+              <div class="admin-rate-grid" style="margin-bottom:0;">
+                <div class="admin-form__row">
+                  <label>Product name</label>
+                  <input type="text" name="name" value="<%= values.name || '' %>" maxlength="150" required />
+                </div>
+                <div class="admin-form__row">
+                  <label>Product code (SKU) <span class="admin-muted">e.g. BJ-GLD-205</span></label>
+                  <input type="text" name="sku" value="<%= values.sku || '' %>" maxlength="40" required />
+                </div>
+                <div class="admin-form__row">
+                  <label>Category</label>
+                  <select name="category" required>
+                    <option value="">Choose…</option>
+                    <% categories.forEach(function (c) { %>
+                      <option value="<%= c.id %>" <%= values.category === c.id ? 'selected' : '' %>><%= c.label %></option>
+                    <% }); %>
+                  </select>
+                </div>
+                <div class="admin-form__row">
+                  <label>Position <span class="admin-muted">(lower shows first)</span></label>
+                  <input type="number" name="displayOrder" value="<%= values.displayOrder != null ? values.displayOrder : 0 %>" />
+                </div>
+              </div>
+              <div class="admin-form__row">
+                <label>Specifications <span class="admin-muted">e.g. 22K BIS Hallmarked Gold (916) • 48.60 gms</span></label>
+                <input type="text" name="specs" value="<%= values.specs || '' %>" maxlength="300" />
+              </div>
+              <div class="admin-form__row">
+                <label>Craft <span class="admin-muted">e.g. Hand-carved Agra Repoussé Technique</span></label>
+                <input type="text" name="craft" value="<%= values.craft || '' %>" maxlength="300" />
+              </div>
+              <div class="admin-form__row">
+                <label>Description <span class="admin-muted">(shown in Quick View)</span></label>
+                <textarea name="description" rows="4" maxlength="2000"><%= values.description || '' %></textarea>
+              </div>
+              <label class="admin-check"><input type="checkbox" name="isActive" <%= values.isActive ? 'checked' : '' %> /> Show on website</label>
+            </div>
+          </div>
+
+          <div class="admin-dialog__actions" style="justify-content:flex-start;">
+            <button type="submit" class="btn btn--gold"><%= product ? 'Save Product' : 'Add Product' %></button>
+            <a class="btn btn--ghost" href="/admin/catalogue">Cancel</a>
+          </div>
+        </form>
+      </div>
+
+      <% if (product) { %>
+        <form method="post" action="/admin/catalogue/<%= product.id %>/delete" onsubmit="return confirm('Delete this product permanently?');">
+          <button type="submit" class="admin-linkbtn admin-linkbtn--danger">Delete this product</button>
+        </form>
+      <% } %>
+    </main>
+  </div>
+</body>
+</html>

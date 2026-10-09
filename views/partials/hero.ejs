@@ -1,3 +1,4 @@
+<% function slidePill(s) { return [s.label, s.tagline].filter(Boolean).join(' — ') || s.title; } %>
 <section class="hero" id="top">
   <div class="hero__bg" id="hero-bg">
     <% hero.slides.forEach(function (slide, i) { %>
@@ -6,7 +7,7 @@
         alt="<%= slide.title %>"
         class="<%= i === 0 ? 'active' : '' %>"
         <%= i === 0 ? '' : 'loading="lazy"' %>
-        data-label="<%= slide.label %> — <%= slide.tagline %>"
+        data-label="<%= slidePill(slide) %>"
       />
     <% }); %>
   </div>
@@ -46,5 +47,5 @@
     </div>
   </div>
 
-  <div class="hero__slidepill" id="hero-pill"><%= hero.slides[0].label %> — <%= hero.slides[0].tagline %></div>
+  <div class="hero__slidepill" id="hero-pill"><%= slidePill(hero.slides[0]) %></div>
 </section>

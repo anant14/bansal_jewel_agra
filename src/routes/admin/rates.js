@@ -4,6 +4,7 @@ const express = require('express');
 const prisma = require('../../db/prisma');
 const content = require('../../services/content');
 const rateService = require('../../services/rateService');
+const liveRates = require('../../services/liveRateService');
 const { startOfTodayIST } = require('../../utils/istDate');
 const NAV = require('./nav');
 
@@ -48,6 +49,8 @@ router.get('/rates', async (req, res, next) => {
     ]);
 
     const allRateTypes = await rateService.getRateTypes({ activeOnly: false });
+    const liveSettings = await liveRates.getSettings();
+    const livePreview = await liveRates.getLiveGoldRates(liveSettings);
 
     res.render('admin/rates', {
       page: { title: 'Gold & Silver Rates — Admin' },
@@ -61,6 +64,9 @@ router.get('/rates', async (req, res, next) => {
       requestsResult,
       requestFilters,
       allRateTypes,
+      liveSettings,
+      livePreview,
+      notice: { saved: req.query.saved === '1', error: req.query.error || '' },
       metrics: { todayRequests, websiteRequests, botRequests, successfulSends, marketingOptIns },
     });
   } catch (err) {
@@ -82,6 +88,19 @@ router.post('/rates/update', async (req, res, next) => {
       return res.status(400).send(err.message + ' <a href="/admin/rates">Go back</a>');
     }
     next(err);
+  }
+});
+
+router.post('/rates/live-settings', async (req, res) => {
+  try {
+    await liveRates.saveSettings(
+      { mode: req.body.mode, importDutyPct: req.body.importDutyPct, premiumPer10g: req.body.premiumPer10g },
+      req.session.adminUserId
+    );
+    rateService.clearWebsiteCache();
+    res.redirect('/admin/rates?saved=1');
+  } catch (err) {
+    res.redirect(`/admin/rates?error=${encodeURIComponent(err.message)}`);
   }
 });
 

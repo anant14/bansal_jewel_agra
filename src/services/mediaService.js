@@ -1,6 +1,7 @@
 'use strict';
 
 const path = require('path');
+const sharp = require('sharp');
 const prisma = require('../db/prisma');
 const storage = require('./storage');
 const whatsapp = require('./whatsapp');
@@ -19,8 +20,11 @@ const ALLOWED = {
 const CATEGORIES = [
   'Gold Jewellery', 'Diamond Jewellery', 'Silver Jewellery', 'Bridal Collection',
   'Rings', 'Necklaces', 'Bangles', 'Earrings', 'Festival Creatives', 'Offers',
-  'Certificates', 'Store Media', 'Other',
+  'Certificates', 'Store Media', 'Website', 'Other',
 ];
+
+// Phone photos are often 5–15MB; the website never needs more than this.
+const WEBSITE_IMAGE_MAX_UPLOAD = 25 * 1024 * 1024;
 
 function validateUpload({ mimeType, originalFilename, size }) {
   const rule = ALLOWED[mimeType];
@@ -107,8 +111,50 @@ async function updateMedia(id, { name, category }) {
   return prisma.mediaAsset.update({ where: { id }, data });
 }
 
-/** Checks whether any template still references this asset before deleting. */
+/**
+ * Uploads a photo for the public website: fixes phone rotation, strips
+ * metadata (including GPS location), scales it down to `maxSize` px on the
+ * long edge and re-encodes as JPEG — a 10MB phone photo becomes ~200–400KB.
+ */
+async function uploadWebsiteImage({ buffer, originalFilename, name, maxSize = 1600, uploadedById }) {
+  if (!buffer || !buffer.length) throw new Error('No photo selected.');
+  if (buffer.length > WEBSITE_IMAGE_MAX_UPLOAD) throw new Error('Photo is too large (maximum 25MB).');
+
+  let output;
+  try {
+    output = await sharp(buffer, { failOn: 'error' })
+      .rotate()
+      .resize({ width: maxSize, height: maxSize, fit: 'inside', withoutEnlargement: true })
+      .flatten({ background: '#0D0C0A' })
+      .jpeg({ quality: 82, mozjpeg: true })
+      .toBuffer();
+  } catch (err) {
+    throw new Error('That file could not be read as a photo. Please upload a JPEG, PNG or WEBP image.');
+  }
+
+  const base = path.basename(originalFilename || 'photo', path.extname(originalFilename || ''));
+  return uploadMedia({
+    buffer: output,
+    originalFilename: `${base || 'photo'}.jpg`,
+    mimeType: 'image/jpeg',
+    name: name || base,
+    category: 'Website',
+    uploadedById,
+  });
+}
+
+/** Checks whether any template or website photo still references this asset before deleting. */
 async function deleteMedia(id) {
+  const [sitePhotos, products] = await Promise.all([
+    prisma.sitePhoto.count({ where: { mediaAssetId: id } }),
+    prisma.product.count({ where: { mediaAssetId: id } }),
+  ]);
+  if (sitePhotos || products) {
+    const err = new Error('Cannot delete — this photo is used on the website. Remove it from Website Photos or the Catalogue first.');
+    err.code = 'MEDIA_IN_USE';
+    throw err;
+  }
+
   const referencingTemplates = await prisma.whatsappTemplate.findMany({
     where: { headerMediaId: id },
     select: { id: true, name: true },
@@ -174,6 +220,7 @@ module.exports = {
   CATEGORIES,
   validateUpload,
   uploadMedia,
+  uploadWebsiteImage,
   listMedia,
   getMedia,
   getMediaFile,

@@ -3,6 +3,8 @@
 const express = require('express');
 const config = require('../config');
 const content = require('../services/content');
+const catalogService = require('../services/catalogService');
+const rateService = require('../services/rateService');
 const whatsapp = require('../services/whatsapp');
 const enquiryStore = require('../services/enquiryStore');
 const logger = require('../utils/logger');
@@ -15,15 +17,23 @@ const ENQUIRY_TYPES = new Set(['product', 'bespoke', 'wholesale', 'general', 'ap
 
 router.get('/brand', (req, res) => res.json(content.brand));
 
-router.get('/products', (req, res) => {
+router.get('/products', async (req, res) => {
   const { category } = req.query;
-  res.json(content.productsByCategory(category));
+  const products = await catalogService.listForWebsite();
+  res.json(!category || category === 'all' ? products : products.filter((p) => p.category === category));
 });
 
-router.get('/products/:sku', (req, res) => {
-  const product = content.findProduct(req.params.sku);
+router.get('/products/:sku', async (req, res) => {
+  const product = await catalogService.findForWebsite(req.params.sku);
   if (!product) return res.status(404).json({ error: 'not_found' });
   res.json(product);
+});
+
+// Polled by the homepage rate board.
+router.get('/rates/gold', async (req, res) => {
+  const data = await rateService.getWebsiteGoldRates();
+  res.set('Cache-Control', 'no-store');
+  res.json(data ? { ok: true, ...data } : { ok: false });
 });
 
 router.get('/reviews', async (req, res) => {

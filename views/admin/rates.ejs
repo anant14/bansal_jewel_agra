@@ -19,6 +19,68 @@
         <div class="admin-metric"><span class="admin-metric__n"><%= metrics.marketingOptIns %></span><span class="admin-metric__l">Marketing Opt-ins</span></div>
       </div>
 
+      <% if (notice.saved) { %><p class="admin-note">Gold rate settings saved. The website updates within a minute.</p><% } %>
+      <% if (notice.error) { %><p class="admin-warning"><%= notice.error %></p><% } %>
+
+      <div class="admin-card admin-section">
+        <div class="admin-section__head">
+          <h3>Website Gold Rate</h3>
+          <% if (liveSettings.mode === 'live') { %>
+            <span class="admin-badge admin-badge--ok">Live</span>
+          <% } else { %>
+            <span class="admin-badge admin-badge--muted">Manual</span>
+          <% } %>
+        </div>
+
+        <% if (livePreview) { %>
+          <table class="admin-table">
+            <thead><tr><th>Live rate (per 10g, excl. GST)</th><th>24K</th><th>22K</th><th>18K</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="admin-muted">
+                  International gold
+                  <% if (livePreview.spot.usdInr) { %>
+                    $<%= (livePreview.spot.pricePerOzInr / livePreview.spot.usdInr).toLocaleString('en-US', { maximumFractionDigits: 2 }) %>/oz
+                    &times; ₹<%= livePreview.spot.usdInr.toFixed(2) %>/$
+                  <% } %>
+                  &bull; <%= new Date(livePreview.updatedAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) %>
+                </td>
+                <% livePreview.rates.forEach(function (r) { %>
+                  <td><strong>₹<%= r.value.toLocaleString('en-IN') %></strong></td>
+                <% }); %>
+              </tr>
+            </tbody>
+          </table>
+        <% } else { %>
+          <p class="admin-warning">The live gold price feed is unavailable right now. The website is showing today's manually entered rates (if any) until it recovers.</p>
+        <% } %>
+
+        <form method="post" action="/admin/rates/live-settings" class="admin-form" style="margin-top:18px;">
+          <div class="admin-rate-grid">
+            <div class="admin-form__row">
+              <label>Rates shown on website &amp; WhatsApp</label>
+              <select name="mode">
+                <option value="live" <%= liveSettings.mode === 'live' ? 'selected' : '' %>>Live (follows the gold market)</option>
+                <option value="manual" <%= liveSettings.mode === 'manual' ? 'selected' : '' %>>Manual (rates I enter below)</option>
+              </select>
+            </div>
+            <div class="admin-form__row">
+              <label>Import duty <span class="admin-muted">(%)</span></label>
+              <input type="number" name="importDutyPct" step="0.01" min="0" max="50" value="<%= liveSettings.importDutyPct %>" />
+            </div>
+            <div class="admin-form__row">
+              <label>Your premium <span class="admin-muted">(₹ per 10g of 24K, can be negative)</span></label>
+              <input type="number" name="premiumPer10g" step="1" value="<%= liveSettings.premiumPer10g %>" />
+            </div>
+          </div>
+          <p class="admin-muted" style="margin:4px 0 14px;">
+            Live 24K = international gold price in ₹ + import duty + your premium. 22K and 18K are 91.6% and 75% of that.
+            Compare it with the MCX rate once and adjust the premium until they match the rate you quote in the shop.
+          </p>
+          <button type="submit" class="btn btn--gold">Save Gold Rate Settings</button>
+        </form>
+      </div>
+
       <div class="admin-card admin-section">
         <div class="admin-section__head">
           <h3>Today's Current Rates</h3>

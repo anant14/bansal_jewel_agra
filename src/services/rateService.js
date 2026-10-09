@@ -1,7 +1,10 @@
 'use strict';
 
 const prisma = require('../db/prisma');
+const config = require('../config');
 const content = require('./content');
+const liveRates = require('./liveRateService');
+const logger = require('../utils/logger');
 const { todayIST, todayISTAsDate, dateOnly } = require('../utils/istDate');
 
 /**
@@ -23,8 +26,12 @@ async function getRateTypes({ activeOnly = true } = {}) {
  * For every active rate type: today's entry if one exists (CURRENT), the
  * most recent entry if today's is missing (STALE, for admin visibility
  * ONLY — never customer-facing), or nothing at all (MISSING).
+ *
+ * In live mode (the default) the gold rates are replaced by the live
+ * computed values from liveRateService, marked source "live". If the
+ * price feed is down, the manually entered rates are used as normal.
  */
-async function getCurrentRates() {
+async function getCurrentRates({ includeLive = true } = {}) {
   const types = await getRateTypes();
   const today = todayISTAsDate();
 
@@ -47,7 +54,87 @@ async function getCurrentRates() {
 
       return { rateType, entry: todayEntry || null, latestEntry: latestEntry || null, status };
     })
-  );
+  ).then((rows) => (includeLive ? withLiveGold(rows) : rows));
+}
+
+async function withLiveGold(rows) {
+  const settings = await liveRates.getSettings();
+  if (settings.mode !== 'live') return rows;
+  const live = await liveRates.getLiveGoldRates(settings);
+  if (!live) return rows;
+
+  return rows.map((row) => {
+    const rate = live.rates.find((r) => r.code === row.rateType.code);
+    if (!rate) return row;
+    return {
+      ...row,
+      rateType: { ...row.rateType, unit: '10g' }, // live values are always per 10g
+      entry: { value: rate.value, source: 'live', effectiveAt: live.updatedAt, updatedAt: live.updatedAt },
+      status: 'current',
+    };
+  });
+}
+
+/* ───────────────────── website rate board ───────────────────── */
+
+const WEBSITE_CACHE_MS = 60 * 1000;
+let websiteCache = { data: undefined, expires: 0 };
+
+/**
+ * The gold rates shown on the homepage: { source, updatedAt, rates: [{ code,
+ * label, name, value, unit }] }, or null when there is nothing current to
+ * show. Live mode uses the price feed; manual mode (or a feed outage) uses
+ * today's rates entered on /admin/rates — never an older day's.
+ */
+async function getWebsiteGoldRates() {
+  if (websiteCache.data !== undefined && Date.now() < websiteCache.expires) return websiteCache.data;
+
+  const data = await computeWebsiteGoldRates();
+  websiteCache = { data, expires: Date.now() + WEBSITE_CACHE_MS };
+  return data;
+}
+
+async function computeWebsiteGoldRates() {
+  const settings = await liveRates.getSettings();
+
+  if (settings.mode === 'live') {
+    const live = await liveRates.getLiveGoldRates(settings);
+    if (live) {
+      return {
+        source: 'live',
+        updatedAt: live.updatedAt,
+        rates: live.rates.map((r) => ({ ...r, unit: '10g' })),
+      };
+    }
+  }
+
+  if (!config.hasDatabase) return null;
+  try {
+    const current = await getCurrentRates({ includeLive: false });
+    const gold = liveRates.GOLD_PURITIES.map((p) =>
+      current.find((r) => r.rateType.code === p.code && r.rateType.isActive && r.status === 'current')
+    ).filter(Boolean);
+    if (!gold.length) return null;
+
+    return {
+      source: 'manual',
+      updatedAt: new Date(Math.max(...gold.map((r) => new Date(r.entry.effectiveAt).getTime()))),
+      rates: gold.map((r) => ({
+        code: r.rateType.code,
+        label: r.rateType.purity || r.rateType.displayName,
+        name: r.rateType.displayName,
+        value: Math.round(Number(r.entry.value)),
+        unit: r.rateType.unit,
+      })),
+    };
+  } catch (err) {
+    logger.error('rates: failed to load manual rates for the website', err.message);
+    return null;
+  }
+}
+
+function clearWebsiteCache() {
+  websiteCache = { data: undefined, expires: 0 };
 }
 
 async function getRateByCode(code) {
@@ -90,6 +177,7 @@ async function saveRates(entries, actorId) {
     });
     results.push(saved);
   }
+  clearWebsiteCache();
   return results;
 }
 
@@ -179,5 +267,7 @@ module.exports = {
   allCurrentFor,
   formatRateMessage,
   getFallbackMessage,
+  getWebsiteGoldRates,
+  clearWebsiteCache,
   todayIST,
 };

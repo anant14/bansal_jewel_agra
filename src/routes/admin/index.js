@@ -10,6 +10,7 @@ const ratesRouter = require('./rates');
 const templatesRouter = require('./templates');
 const mediaRouter = require('./media');
 const settingsRouter = require('./settings');
+const websiteRouter = require('./website');
 const NAV = require('./nav');
 
 const router = express.Router();
@@ -40,6 +41,7 @@ router.use(ratesRouter); // /admin/rates + /admin/rates/update
 router.use(templatesRouter); // /admin/templates + /admin/templates/*
 router.use(mediaRouter); // /admin/media + /admin/api/media
 router.use(settingsRouter); // /admin/settings + /admin/settings/*
+router.use(websiteRouter); // /admin/website-photos + /admin/catalogue
 
 router.get(
   '/campaigns',

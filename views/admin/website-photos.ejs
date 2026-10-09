@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <div class="admin-shell">
+    <%- include('partials/sidebar') %>
+    <main class="admin-main">
+      <div class="admin-header">
+        <h1>Website Photos</h1>
+        <p class="admin-header__sub">Photos on the homepage. Product photos are managed in the <a class="admin-table__link" href="/admin/catalogue">Catalogue</a>.</p>
+      </div>
+
+      <% if (notice.saved) { %><p class="admin-success"><%= notice.saved %> Changes appear on the website within a minute.</p><% } %>
+      <% if (notice.error) { %><p class="admin-warning"><%= notice.error %></p><% } %>
+
+      <% Object.keys(placements).forEach(function (key) { %>
+        <% const spec = placements[key]; const list = photos[key]; const isHero = key === 'hero'; %>
+        <% const activeCount = list.filter(function (p) { return p.isActive; }).length; %>
+        <div class="admin-card admin-section" id="<%= key %>">
+          <div class="admin-section__head">
+            <h3><%= spec.label %></h3>
+            <span class="admin-muted"><%= activeCount %> shown</span>
+          </div>
+
+          <p class="admin-muted" style="margin-top:-6px;">
+            <% if (isHero) { %>
+              The large rotating photos at the top of the homepage. Landscape photos work best (at least 1600px wide).
+            <% } else { %>
+              The photo strip in the &ldquo;Visit the Showroom&rdquo; section. Tick &ldquo;wide&rdquo; for a photo that should span two columns.
+            <% } %>
+            <% if (!activeCount) { %>
+              <strong>Currently showing the default stock photos</strong> &mdash; they are replaced as soon as you add your own.
+            <% } %>
+          </p>
+
+          <form method="post" action="/admin/website-photos/<%= key %>/add" enctype="multipart/form-data" class="admin-form admin-upload">
+            <div class="admin-rate-grid">
+              <div class="admin-form__row">
+                <label>Photo <span class="admin-muted">(JPEG, PNG or WEBP — resized automatically)</span></label>
+                <input type="file" name="photo" accept="image/jpeg,image/png,image/webp" required />
+              </div>
+              <div class="admin-form__row">
+                <label>Description <span class="admin-muted">(<%= isHero ? 'slide title, e.g. Royal Polki Bridal Choker' : 'e.g. Bridal gold display' %>)</span></label>
+                <input type="text" name="title" maxlength="150" required />
+              </div>
+              <% if (isHero) { %>
+                <div class="admin-form__row">
+                  <label>Label <span class="admin-muted">(optional, e.g. Polki)</span></label>
+                  <input type="text" name="label" maxlength="40" />
+                </div>
+                <div class="admin-form__row">
+                  <label>Tagline <span class="admin-muted">(optional)</span></label>
+                  <input type="text" name="tagline" maxlength="150" />
+                </div>
+              <% } else { %>
+                <div class="admin-form__row">
+                  <label>&nbsp;</label>
+                  <label class="admin-check"><input type="checkbox" name="wide" /> Wide photo</label>
+                </div>
+              <% } %>
+              <div class="admin-form__row">
+                <label>Position <span class="admin-muted">(lower shows first)</span></label>
+                <input type="number" name="displayOrder" value="<%= (list.length + 1) * 10 %>" />
+              </div>
+            </div>
+            <button type="submit" class="btn btn--gold">Upload Photo</button>
+          </form>
+
+          <% if (list.length) { %>
+            <div class="admin-media-grid admin-photo-grid">
+              <% list.forEach(function (p) { %>
+                <div class="admin-media-card <%= p.isActive ? '' : 'is-hidden' %>">
+                  <a href="/media/<%= p.mediaAssetId %>" target="_blank" rel="noopener" class="admin-media-card__preview">
+                    <img src="/media/<%= p.mediaAssetId %>" alt="<%= p.title %>" loading="lazy" />
+                  </a>
+                  <div class="admin-media-card__body">
+                    <form method="post" action="/admin/website-photos/<%= p.id %>/update" class="admin-form">
+                      <div class="admin-form__row">
+                        <label>Description</label>
+                        <input type="text" name="title" value="<%= p.title %>" maxlength="150" required />
+                      </div>
+                      <% if (isHero) { %>
+                        <div class="admin-form__row">
+                          <label>Label</label>
+                          <input type="text" name="label" value="<%= p.label || '' %>" maxlength="40" />
+                        </div>
+                        <div class="admin-form__row">
+                          <label>Tagline</label>
+                          <input type="text" name="tagline" value="<%= p.tagline || '' %>" maxlength="150" />
+                        </div>
+                      <% } else { %>
+                        <label class="admin-check"><input type="checkbox" name="wide" <%= p.wide ? 'checked' : '' %> /> Wide photo</label>
+                      <% } %>
+                      <div class="admin-form__row">
+                        <label>Position</label>
+                        <input type="number" name="displayOrder" value="<%= p.displayOrder %>" />
+                      </div>
+                      <label class="admin-check"><input type="checkbox" name="isActive" <%= p.isActive ? 'checked' : '' %> /> Show on website</label>
+                      <button type="submit" class="btn btn--ghost btn--small">Save</button>
+                    </form>
+                    <form method="post" action="/admin/website-photos/<%= p.id %>/delete" class="admin-media-card__delete" onsubmit="return confirm('Remove this photo from the website?');">
+                      <button type="submit">Delete</button>
+                    </form>
+                  </div>
+                </div>
+              <% }); %>
+            </div>
+          <% } %>
+        </div>
+      <% }); %>
+    </main>
+  </div>
+</body>
+</html>

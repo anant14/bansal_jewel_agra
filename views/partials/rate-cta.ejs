@@ -1,10 +1,50 @@
+<%
+  function rateTime(d) {
+    var date = new Date(d);
+    var opts = { timeZone: 'Asia/Kolkata' };
+    var sameDay = date.toLocaleDateString('en-IN', opts) === new Date().toLocaleDateString('en-IN', opts);
+    var time = date.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: 'numeric', minute: '2-digit' });
+    return sameDay ? 'updated ' + time : 'as of ' + date.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short' }) + ', ' + time;
+  }
+%>
 <section class="rate-cta" id="rate-cta">
-  <div class="container rate-cta__inner">
-    <div class="rate-cta__text">
-      <p class="rate-cta__eyebrow">Live Today</p>
-      <h2 class="rate-cta__title">Get Today&rsquo;s Gold &amp; Silver Rate on WhatsApp</h2>
-      <p class="rate-cta__sub">Enter your WhatsApp number and receive today&rsquo;s <%= brand.name %> gold &amp; silver rates.</p>
+  <% if (goldRates && goldRates.rates.length) { %>
+    <div class="container rate-cta__inner rate-cta__inner--board">
+      <div class="rate-cta__text">
+        <p class="rate-cta__eyebrow">
+          <% if (goldRates.source === 'live') { %><span class="rate-live-dot" aria-hidden="true"></span>Live Gold Rate<% } else { %>Today&rsquo;s Gold Rate<% } %>
+        </p>
+        <h2 class="rate-cta__title">Gold Rate Today in Agra</h2>
+        <p class="rate-cta__sub">
+          Per 10 grams &bull; excl. 3% GST &bull;
+          <span id="rate-updated" data-source="<%= goldRates.source %>"><%= rateTime(goldRates.updatedAt) %></span>
+        </p>
+      </div>
+
+      <div class="rate-board" id="rate-board" aria-live="polite">
+        <% goldRates.rates.forEach(function (r) { %>
+          <div class="rate-board__item">
+            <span class="rate-board__k"><%= r.label %></span>
+            <span class="rate-board__v" data-rate-code="<%= r.code %>">&#8377;<%= Number(r.value).toLocaleString('en-IN') %></span>
+            <span class="rate-board__u">/ <%= r.unit %></span>
+          </div>
+        <% }); %>
+      </div>
+
+      <button type="button" class="btn btn--gold rate-cta__btn" id="open-rate-request">Get Rate on WhatsApp</button>
+      <p class="rate-cta__note">
+        Indicative rates<%= goldRates.source === 'live' ? ', based on the live international gold price' : '' %>.
+        Final jewellery price includes making charges &amp; GST &mdash; please confirm at the showroom.
+      </p>
     </div>
-    <button type="button" class="btn btn--gold rate-cta__btn" id="open-rate-request">Get Today&rsquo;s Rate</button>
-  </div>
+  <% } else { %>
+    <div class="container rate-cta__inner">
+      <div class="rate-cta__text">
+        <p class="rate-cta__eyebrow">Live Today</p>
+        <h2 class="rate-cta__title">Get Today&rsquo;s Gold &amp; Silver Rate on WhatsApp</h2>
+        <p class="rate-cta__sub">Enter your WhatsApp number and receive today&rsquo;s <%= brand.name %> gold &amp; silver rates.</p>
+      </div>
+      <button type="button" class="btn btn--gold rate-cta__btn" id="open-rate-request">Get Today&rsquo;s Rate</button>
+    </div>
+  <% } %>
 </section>
