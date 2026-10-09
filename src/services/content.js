@@ -165,8 +165,9 @@ function requestGoogleReviews(apiKey, placeId) {
 }
 
 async function fetchGoogleReviews() {
-  const apiKey = process.env.GOOGLE_PLACES_API_KEY;
-  const placeId = process.env.GOOGLE_PLACE_ID;
+  // Trimmed: values pasted into the Render dashboard can carry a trailing newline.
+  const apiKey = (process.env.GOOGLE_PLACES_API_KEY || '').trim();
+  const placeId = (process.env.GOOGLE_PLACE_ID || '').trim();
   if (!apiKey || !placeId) {
     googleStatus = `not_configured: missing ${[!apiKey && 'GOOGLE_PLACES_API_KEY', !placeId && 'GOOGLE_PLACE_ID'].filter(Boolean).join(' and ')}`;
     return null;
