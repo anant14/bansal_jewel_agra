@@ -78,6 +78,8 @@ app.use(
 app.use(express.urlencoded({ extended: false }));
 
 /* ─────────────────────── static assets ────────────────────── */
+// Appended to CSS/JS URLs (?v=...) so each deploy busts the 7-day browser cache.
+app.locals.assetVersion = (process.env.RENDER_GIT_COMMIT || Date.now().toString(36)).slice(0, 8);
 app.use(
   express.static(path.join(__dirname, '..', 'public'), {
     maxAge: config.isProd ? '7d' : 0,

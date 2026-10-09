@@ -88,28 +88,38 @@ function reviewSummary() {
   return { average: (sum / list.length).toFixed(1), count: list.length };
 }
 
+// Place Details (New) returns at most 5 reviews; Google bills per call, so
+// cache the result instead of hitting the API on every page view.
+const GOOGLE_REVIEWS_TTL_MS = 6 * 60 * 60 * 1000;
+const GOOGLE_REVIEWS_RETRY_MS = 10 * 60 * 1000;
+let googleCache = { data: null, expires: 0 };
+
 function normalizeGoogleReview(review) {
-  if (!review || !review.author_name) return null;
+  const author = review && review.authorAttribution && review.authorAttribution.displayName;
+  const text = review && ((review.text && review.text.text) || (review.originalText && review.originalText.text));
+  if (!author || !text) return null;
   return {
-    author: review.author_name,
-    location: 'Google Business Profile',
+    author,
+    location: 'Google review',
     rating: Math.min(5, Math.max(1, Math.round(Number(review.rating) || 5))),
     source: 'Verified Google review',
-    comment: review.text || 'Verified customer review from Google.',
-    date: review.relative_time_description || 'Google review',
+    comment: text,
+    date: review.relativePublishTimeDescription || 'Google review',
   };
 }
 
-function fetchGoogleReviews() {
-  const apiKey = process.env.GOOGLE_PLACES_API_KEY;
-  const placeId = process.env.GOOGLE_PLACE_ID;
-
-  if (!apiKey || !placeId) return null;
-
-  const endpoint = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(placeId)}&fields=name,rating,user_ratings_total,reviews&key=${encodeURIComponent(apiKey)}`;
+function requestGoogleReviews(apiKey, placeId) {
+  const options = {
+    hostname: 'places.googleapis.com',
+    path: `/v1/places/${encodeURIComponent(placeId)}`,
+    headers: {
+      'X-Goog-Api-Key': apiKey,
+      'X-Goog-FieldMask': 'rating,userRatingCount,reviews',
+    },
+  };
 
   return new Promise((resolve) => {
-    const req = https.get(endpoint, (res) => {
+    const req = https.get(options, (res) => {
       let raw = '';
       res.on('data', (chunk) => {
         raw += chunk;
@@ -117,15 +127,16 @@ function fetchGoogleReviews() {
       res.on('end', () => {
         try {
           const payload = JSON.parse(raw);
-          if (!payload || payload.status !== 'OK' || !payload.result) {
+          if (res.statusCode !== 200 || !payload) {
+            const msg = payload && payload.error ? payload.error.message : `HTTP ${res.statusCode}`;
+            logger.warn('content: Google reviews request failed', msg);
             resolve(null);
             return;
           }
-          const result = payload.result;
-          const reviews = Array.isArray(result.reviews) ? result.reviews.map(normalizeGoogleReview).filter(Boolean) : [];
+          const reviews = Array.isArray(payload.reviews) ? payload.reviews.map(normalizeGoogleReview).filter(Boolean) : [];
           const summary = {
-            average: Number(result.rating || 0).toFixed(1),
-            count: Number(result.user_ratings_total || reviews.length || 0),
+            average: Number(payload.rating || 0).toFixed(1),
+            count: Number(payload.userRatingCount || reviews.length || 0),
           };
           resolve({ summary, items: reviews });
         } catch (err) {
@@ -135,12 +146,32 @@ function fetchGoogleReviews() {
       });
     });
 
-    req.on('error', () => resolve(null));
+    req.on('error', (err) => {
+      logger.warn('content: Google reviews fetch failed', err.message);
+      resolve(null);
+    });
     req.setTimeout(10000, () => {
       req.destroy();
       resolve(null);
     });
   });
+}
+
+async function fetchGoogleReviews() {
+  const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+  const placeId = process.env.GOOGLE_PLACE_ID;
+  if (!apiKey || !placeId) return null;
+
+  const now = Date.now();
+  if (now < googleCache.expires) return googleCache.data;
+
+  const data = await requestGoogleReviews(apiKey, placeId);
+  // On failure keep serving the last good result, and retry sooner.
+  googleCache = {
+    data: data || googleCache.data,
+    expires: now + (data ? GOOGLE_REVIEWS_TTL_MS : GOOGLE_REVIEWS_RETRY_MS),
+  };
+  return googleCache.data;
 }
 
 async function getReviewsData() {

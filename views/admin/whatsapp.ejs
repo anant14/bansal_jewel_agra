@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <%- include('partials/head') %>
-  <link rel="stylesheet" href="/css/whatsapp.css" />
+  <link rel="stylesheet" href="/css/whatsapp.css?v=<%= assetVersion %>" />
 </head>
 <body>
   <div class="admin-shell">
@@ -124,6 +124,6 @@
     </main>
   </div>
 
-  <script src="/js/admin-whatsapp.js"></script>
+  <script src="/js/admin-whatsapp.js?v=<%= assetVersion %>"></script>
 </body>
 </html>

@@ -3,7 +3,7 @@
     <div class="footer__grid">
       <div>
         <a href="#top" class="brand">
-          <img src="<%= brand.logo %>" alt="<%= brand.name %> logo" class="brand__logo" />
+          <img src="<%= brand.logo %>" alt="<%= brand.name %> logo" class="brand__logo" width="42" height="42" />
           <span class="brand__name"><%= brand.name %></span>
         </a>
         <p class="eyebrow" style="margin-top:16px"><%= brand.city %> &bull; <%= brand.est %> &bull; <%= brand.generation %></p>
@@ -38,7 +38,7 @@
       <p><%= brand.addressShort %> &bull; <%= brand.phoneDisplay %></p>
       <p class="footer__legalLinks">
         <% footer.legalLinks.forEach(function (link, i) { %>
-          <a href="<%= link.href %>"><%= link.label %></a><%= i < footer.legalLinks.length - 1 ? ' &bull; ' : '' %>
+          <a href="<%= link.href %>"><%= link.label %></a><%= i < footer.legalLinks.length - 1 ? ' • ' : '' %>
         <% }); %>
       </p>
     </div>
