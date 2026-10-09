@@ -1,7 +1,6 @@
 'use strict';
 
 const path = require('path');
-const sharp = require('sharp');
 const prisma = require('../db/prisma');
 const storage = require('./storage');
 const whatsapp = require('./whatsapp');
@@ -120,6 +119,9 @@ async function uploadWebsiteImage({ buffer, originalFilename, name, maxSize = 16
   if (!buffer || !buffer.length) throw new Error('No photo selected.');
   if (buffer.length > WEBSITE_IMAGE_MAX_UPLOAD) throw new Error('Photo is too large (maximum 25MB).');
 
+  // Loaded on first use so the image library stays out of the process
+  // until someone actually uploads a photo.
+  const sharp = require('sharp');
   let output;
   try {
     output = await sharp(buffer, { failOn: 'error' })

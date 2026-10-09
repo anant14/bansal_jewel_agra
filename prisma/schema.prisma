@@ -5,6 +5,10 @@
 
 generator client {
   provider = "prisma-client-js"
+  // The query engine runs as its own process: loaded in-process, its
+  // OpenSSL clashes with the copy bundled by sharp (image uploads) and every
+  // TLS connection to Render's Postgres fails with "OpenSSL error".
+  engineType = "binary"
 }
 
 datasource db {
