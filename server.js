@@ -3,8 +3,13 @@
 const app = require('./src/app');
 const config = require('./src/config');
 const logger = require('./src/utils/logger');
+const { prepareDatabase } = require('./src/db/bootstrap');
 
-const server = app.listen(config.port, config.host, () => {
+let server;
+
+async function start() {
+  await prepareDatabase();
+  server = app.listen(config.port, config.host, () => {
   logger.info(
     `Bansal Jewellers site listening on http://${config.host}:${config.port}  (${config.env})`
   );
@@ -13,10 +18,14 @@ const server = app.listen(config.port, config.host, () => {
       ? 'WhatsApp Cloud API: configured — outbound + webhook active'
       : 'WhatsApp Cloud API: not configured — enquiries fall back to wa.me links'
   );
-});
+  });
+}
+
+start();
 
 function shutdown(signal) {
   logger.info(`${signal} received — shutting down`);
+  if (!server) process.exit(0);
   server.close(() => {
     logger.info('HTTP server closed');
     process.exit(0);

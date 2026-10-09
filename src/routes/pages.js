@@ -8,6 +8,8 @@ const sitePhotoService = require('../services/sitePhotoService');
 const mediaService = require('../services/mediaService');
 const rateService = require('../services/rateService');
 const logger = require('../utils/logger');
+const prisma = require('../db/prisma');
+const dbBootstrap = require('../db/bootstrap');
 
 const router = express.Router();
 
@@ -59,8 +61,22 @@ router.get('/media/:id', async (req, res, next) => {
 });
 
 // Simple health endpoint (handy for uptime checks / the reverse proxy).
-router.get('/healthz', (req, res) => {
+// Reports problems by status/error code only — never connection details.
+router.get('/healthz', async (req, res) => {
+  let database = 'not_configured';
+  let adminAccounts;
+  if (config.hasDatabase) {
+    try {
+      adminAccounts = await prisma.adminUser.count({ where: { isActive: true } });
+      database = 'ok';
+    } catch (err) {
+      database = `error: ${err.code || err.name || 'unknown'}`;
+    }
+  }
   res.json({
+    database,
+    databaseSetup: dbBootstrap.status,
+    adminAccounts,
     ok: true,
     service: 'bansal-jewellers',
     env: config.env,
