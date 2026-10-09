@@ -21,7 +21,7 @@ const logger = require('../utils/logger');
 const SETTINGS_KEY = 'gold_rates';
 const DEFAULT_SETTINGS = {
   mode: 'live', // live | manual — manual uses the rates typed in on /admin/rates
-  importDutyPct: 6, // India's effective customs duty on gold (BCD + AIDC)
+  importDutyPct: 15, // India's effective customs duty on gold since 13 May 2026 (10% BCD + 5% cess)
   premiumPer10g: 0, // added to the 24K rate; 22K/18K follow proportionally
 };
 
