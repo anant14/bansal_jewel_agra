@@ -70,7 +70,17 @@ router.get('/healthz', async (req, res) => {
       adminAccounts = await prisma.adminUser.count({ where: { isActive: true } });
       database = 'ok';
     } catch (err) {
-      database = `error: ${err.code || err.name || 'unknown'}`;
+      // Connection strings and host:port pairs are stripped before showing the reason.
+      const reason = String(err.message || '')
+        .replace(/postgres(ql)?:\/\/\S+/gi, '<url>')
+        .replace(/[\w.-]+:\d{2,5}/g, '<host>')
+        .split('\n')
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .slice(-2)
+        .join(' ')
+        .slice(0, 300);
+      database = `error: ${err.code || err.name || 'unknown'}: ${reason}`;
     }
   }
   res.json({
