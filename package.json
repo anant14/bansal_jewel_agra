@@ -14,7 +14,7 @@
     "db:seed": "node prisma/seed.js"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20.9"
   },
   "dependencies": {
     "@prisma/client": "^5.20.0",
@@ -30,7 +30,7 @@
     "morgan": "^1.10.0",
     "multer": "^2.0.0",
     "prisma": "^5.20.0",
-    "sharp": "0.32.6"
+    "sharp": "0.35.5"
   },
   "devDependencies": {
     "@neon/config": "^1.14.2",
