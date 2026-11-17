@@ -3,6 +3,7 @@
   "shortName": "Bansal Jewellers",
   "initials": "BJ",
   "logo": "/assets/brand_logo_black.png",
+  "siteUrl": "https://www.bansaljewellersagra.com",
   "city": "Agra",
   "est": "EST. 1839",
   "since": "Since 1839",
@@ -23,7 +24,7 @@
   "mapEmbedUrl": "https://storage.googleapis.com/maps-solutions-96yv3geqx4/locator-plus/gg88/locator-plus.html",
   "whatsappDefaultMessage": "Hello Bansal Jewellers, I would like to enquire about your jewellery collections and services.",
   "social": {
-    "instagram": "",
+    "instagram": "https://www.instagram.com/bansaljewellers_agra/",
     "facebook": "",
     "youtube": ""
   }

@@ -2,6 +2,37 @@
 <html lang="en">
 <head>
   <%- include('partials/head') %>
+  <%
+    // Structured data so Google can show the business logo, address and hours.
+    const ld = {
+      '@context': 'https://schema.org',
+      '@type': 'JewelryStore',
+      name: brand.name,
+      url: brand.siteUrl,
+      logo: brand.siteUrl + '/logo-512.png',
+      image: brand.siteUrl + '/logo-512.png',
+      description: brand.metaDescription,
+      foundingDate: brand.est.replace(/\D/g, ''),
+      telephone: brand.phoneTel,
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: '13/50, Kinari Bazaar, Besides Namak Ki Mandi Phatak',
+        addressLocality: 'Agra',
+        addressRegion: 'Uttar Pradesh',
+        postalCode: '282003',
+        addressCountry: 'IN',
+      },
+      openingHoursSpecification: [{
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+        opens: '10:30',
+        closes: '20:30',
+      }],
+      hasMap: brand.googleMapsUrl,
+      sameAs: Object.values(brand.social || {}).filter(Boolean),
+    };
+  %>
+  <script type="application/ld+json"><%- JSON.stringify(ld).replace(/</g, '\\u003c') %></script>
 </head>
 <body data-phone="<%= brand.phoneRaw %>">
   <div class="grain" aria-hidden="true"></div>
