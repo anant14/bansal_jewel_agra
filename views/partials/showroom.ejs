@@ -63,5 +63,17 @@
         </div>
       </div>
     </div>
+
+    <% if (brand.mapEmbedUrl) { %>
+      <div class="showroom__map reveal">
+        <iframe
+          src="<%= brand.mapEmbedUrl %>"
+          title="Map — <%= brand.name %>, <%= brand.addressShort %>"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          allowfullscreen
+        ></iframe>
+      </div>
+    <% } %>
   </div>
 </section>

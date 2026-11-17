@@ -45,6 +45,8 @@ app.use(
         styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
         fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
         imgSrc: ["'self'", 'data:', 'https://images.unsplash.com'],
+        // Google Maps "Locator Plus" embed in the showroom section (brand.json mapEmbedUrl).
+        frameSrc: ["'self'", 'https://storage.googleapis.com'],
         connectSrc: ["'self'"],
         formAction: ["'self'", 'https://wa.me', 'https://api.whatsapp.com'],
         frameAncestors: ["'self'"],
