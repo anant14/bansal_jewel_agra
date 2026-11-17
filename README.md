@@ -1,6 +1,6 @@
 # Bansal Jewellers — dynamic website
 
-A server-rendered Node.js site for **Bansal Jewellers, Agra** (Since 1820).
+A server-rendered Node.js site for **Bansal Jewellers, Agra** (Since 1839).
 Visually it mirrors the shared design: dark heritage-luxury theme, gold gradient
 accents, Cormorant Garamond + Inter type, reveal-on-scroll, hero slideshow.
 

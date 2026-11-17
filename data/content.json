@@ -9,14 +9,14 @@
   ],
 
   "hero": {
-    "eyebrow": "Ninth Generation Jewellery House • Agra • Since 1820",
-    "headingLines": ["Two Centuries of", "Royal Karigari", "& Uncut Brilliance"],
+    "eyebrow": "Ninth Generation Jewellery House • Agra • Since 1839",
+    "headingLines": ["Nearly Two Centuries of", "Royal Karigari", "& Uncut Brilliance"],
     "goldLineIndex": 1,
-    "subheading": "Mastering Gold, Diamond and Polki craftsmanship for over 200 years — with our own workshop in Agra and diamond atelier in Surat, serving connoisseurs and leading retailers across North India.",
+    "subheading": "Mastering Gold, Diamond and Polki craftsmanship for over 185 years — with our own workshop in Agra and diamond atelier in Surat, serving connoisseurs and leading retailers across North India.",
     "primaryCta": { "label": "Explore Heritage Catalogue", "href": "#collections" },
     "secondaryCta": { "label": "Enquire on WhatsApp", "message": "Hello Bansal Jewellers, I'm interested in your collections. Please share details." },
     "stats": [
-      { "value": "200+", "label": "Years of Legacy" },
+      { "value": "185+", "label": "Years of Legacy" },
       { "value": "9", "label": "Generations" },
       { "value": "2", "label": "Own Ateliers" }
     ],
@@ -49,7 +49,7 @@
   },
 
   "marquee": [
-    "200 Years of Heritage",
+    "185+ Years of Heritage",
     "9 Generations of Trust",
     "100% BIS 750 Hallmarked",
     "IGI Certified Diamonds",
@@ -111,8 +111,8 @@
 
   "bespoke": {
     "eyebrow": "The Bespoke Atelier",
-    "heading": "Your vision, our two centuries of karigari",
-    "goldWord": "our two centuries of karigari",
+    "heading": "Your vision, our 185 years of karigari",
+    "goldWord": "our 185 years of karigari",
     "intro": "From a rough sketch to a 3D CAD render to a hand-finished heirloom — our master artisans in Agra and Surat craft one-of-one pieces for weddings, milestones and legacies. Begin your bespoke journey in three simple steps.",
     "steps": [
       { "number": "01", "title": "Share Your Vision", "detail": "Sketch, reference or just an idea — we listen first." },
@@ -123,13 +123,13 @@
   },
 
   "heritage": {
-    "eyebrow": "Since 1820 • Agra",
+    "eyebrow": "Since 1839 • Agra",
     "heading": "One unbroken promise.",
-    "intro": "For over two centuries, the Bansal family has shaped gold, cut diamonds and set uncut polki in the shadow of the Taj Mahal. Today, the ninth generation carries the same torch — from our workshop in Agra to our atelier in Surat.",
-    "timelineLabel": "Chapter by chapter ◈ 1820 — 2026",
+    "intro": "For over 185 years, the Bansal family has shaped gold, cut diamonds and set uncut polki in the shadow of the Taj Mahal. Today, the ninth generation carries the same torch — from our workshop in Agra to our atelier in Surat.",
+    "timelineLabel": "Chapter by chapter ◈ 1839 — 2026",
     "milestones": [
       {
-        "era": "1820s — The Genesis",
+        "era": "1830s — The Genesis",
         "title": "Founded in the Historic Heart of Agra",
         "detail": "Established near the historic jewel bazaars of Agra, crafting bespoke gold ornaments for noble families and patrons of fine Mughal filigree."
       },
@@ -171,7 +171,7 @@
     "eyebrow": "Google Business Reviews",
     "ratingValue": "4.9",
     "ratingCount": "74 Verified Reviews",
-    "intro": "Two centuries of relationships, reflected in the words of our bridal families and retail partners on Google.",
+    "intro": "Nearly two centuries of relationships, reflected in the words of our bridal families and retail partners on Google.",
     "cta": { "label": "Read all reviews on Google" }
   },
 
@@ -189,7 +189,7 @@
   },
 
   "footer": {
-    "blurb": "Two Centuries of Royal Karigari & Timeless Brilliance. Own manufacturing in Agra & Surat.",
+    "blurb": "Nearly Two Centuries of Royal Karigari & Timeless Brilliance. Own manufacturing in Agra & Surat.",
     "quickLinks": [
       { "label": "Collections", "href": "#collections" },
       { "label": "Our Legacy", "href": "#legacy" },
@@ -203,7 +203,7 @@
       "IGI / GIA / SGL Certified Diamonds",
       "Manufacturing Units: Heritage Gold & Polki Workshop, Agra (UP) • Diamond Atelier, Surat (Gujarat)"
     ],
-    "legalLine": "Bansal Jewellers, Agra ◈ Since 1820",
+    "legalLine": "Bansal Jewellers, Agra ◈ Since 1839",
     "legalLinks": [
       { "label": "Privacy Policy", "href": "/privacy-policy" },
       { "label": "Terms of Service", "href": "/terms-of-service" },
