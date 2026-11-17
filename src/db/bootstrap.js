@@ -17,9 +17,17 @@ const logger = require('../utils/logger');
 const ROOT = path.join(__dirname, '..', '..');
 let status = config.hasDatabase ? 'pending' : 'not_configured';
 
+// Migrations take session-level locks, which a transaction-mode pooler (Neon's
+// "-pooler" host) doesn't support, so use the direct connection when there is
+// one. The app itself keeps using the pooled DATABASE_URL.
+const CHILD_ENV = {
+  ...process.env,
+  DATABASE_URL: process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL,
+};
+
 function run(label, args, timeoutMs) {
   return new Promise((resolve) => {
-    execFile(process.execPath, args, { cwd: ROOT, timeout: timeoutMs, env: process.env }, (err, stdout, stderr) => {
+    execFile(process.execPath, args, { cwd: ROOT, timeout: timeoutMs, env: CHILD_ENV }, (err, stdout, stderr) => {
       const output = `${stdout || ''}${stderr || ''}`.trim();
       if (err) {
         logger.error(`db bootstrap: ${label} failed`, output.split('\n').slice(-5).join(' | ') || err.message);

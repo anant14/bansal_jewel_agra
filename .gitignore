@@ -8,3 +8,4 @@ data/whatsapp-inbox.json
 .DS_Store
 coverage/
 dist/
+.neon
